@@ -5,11 +5,53 @@
 # validate_count_unique(train_set)
 # test_without_train(train_set, test_set)
 
+# Test Data
+# d = head(train_set, 100)
+# t = interpret_data(d)
+
+# Train
+# k = karet_train(train_set)
+
 require(data.table)
+library(caret)
+
+# Model list http://topepo.github.io/caret/modelList.html
+karet_train <- function(data, data_model="simple", karet_model="glm", model_seed=32343) {
+    set.seed(model_seed)
+    
+    # map field to model
+    data = interpret_data(data, data_model, "train")
+    
+    inTrain = createDataPartition(y=data$click, p=0.75, list=FALSE)
+    
+    training = data[inTrain[,1],] # first column is row index
+    testing  = data[-inTrain[,1],]
+    
+    cat ("Train data dimension ") 
+    print (dim(training))
+    
+    cat ("Test data dimension ") 
+    print (dim(testing))
+    
+    modelFit <- train(
+                click ~.,data=training, 
+                method="knn",
+                preProcess = c("center", "scale"),
+                tuneLength = 10
+            )
+    modelFit
+    
+    
+    
+    
+    
+    return(modelFit)
+    
+    
+#     1
+}
 
 int_model_simple <- function(data, type) {
-    print ("This is Simple!")
-    
     # simple model
     # banner_pos, site_category, app_category, device_type, device_conn_type
     
@@ -29,9 +71,11 @@ int_model_simple <- function(data, type) {
 }
 
 interpret_data <- function( data, model="simple", type="train") {
-    
+    print ( c("Model", model), quote=FALSE )
     if (model == "simple") {
         data = int_model_simple(data, type)
+    } else {
+        return (NULL)
     }
     
     data
@@ -42,9 +86,9 @@ read_data <- function(file_name, limit=0) {
     file_path = paste("Raw", file_name, sep = "/")
     
     if (limit) {
-        data = fread(file_path, nrows=limit)
+        data = fread(file_path, nrows=limit, colClasses="character")
     } else {
-        data = fread(file_path)
+        data = fread(file_path, colClasses="character")
     }
     
     data
