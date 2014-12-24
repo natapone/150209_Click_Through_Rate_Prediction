@@ -49,3 +49,8 @@ Data fields
 # Model
 # Hidden Markov model, Naive Bayes classifier
 
+# select data.table by multiple columns
+test_set[,c("id","C1"),with=FALSE]
+
+# From ?data.table:
+# When with=FALSE, j is a vector of names or positions to select, similar to a data.frame. with=FALSE is often useful in data.table to select columns dynamically.

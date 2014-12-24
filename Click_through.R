@@ -7,8 +7,34 @@
 
 require(data.table)
 
-interpret_data <- function( data, type="train") {
+int_model_simple <- function(data, type) {
+    print ("This is Simple!")
     
+    # simple model
+    # banner_pos, site_category, app_category, device_type, device_conn_type
+    
+    col_list = c(
+        "banner_pos",
+        "site_category",
+        "app_category",
+        "device_type",
+        "device_conn_type"
+    )
+    
+    if (type == "train") {
+        col_list = c(col_list, "click")
+    }
+    
+    data[, col_list, with=FALSE]
+}
+
+interpret_data <- function( data, model="simple", type="train") {
+    
+    if (model == "simple") {
+        data = int_model_simple(data, type)
+    }
+    
+    data
 }
 
 read_data <- function(file_name, limit=0) {
