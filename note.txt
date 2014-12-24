@@ -26,4 +26,26 @@ Data fields
 * device_conn_type
 * C14-C21 -- anonymized categorical variables
 
+=========
+
+# http://stackoverflow.com/questions/1727772/quickly-reading-very-large-tables-as-dataframes-in-r/15058684#15058684
+
+# validate ==> 
+# http://stat.ethz.ch/R-manual/R-patched/library/stats/html/aggregate.html
+# http://stats.stackexchange.com/questions/8225/how-to-summarize-data-by-group-in-r
+# data test without train => http://stackoverflow.com/questions/7719741/how-to-test-if-list-element-exists
+# compare lists => http://stackoverflow.com/questions/17598134/compare-two-lists-in-r
+
+# Convert
+# Round time => convert to xxxx0000
+# convert to time => http://stackoverflow.com/questions/13456241/convert-unix-epoch-to-date-object-in-r
+
+# List unique values
+# unique(tr$banner_pos)
+
+# Misc
+# class, ncol, colnames, remove
+
+# Model
+# Hidden Markov model, Naive Bayes classifier
 
