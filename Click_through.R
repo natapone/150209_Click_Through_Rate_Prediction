@@ -10,13 +10,13 @@
 # t = interpret_data(d)
 
 # Train
-# k = karet_train(train_set)
+# k = caret_train(train_set)
 
 require(data.table)
 library(caret)
 
 # Model list http://topepo.github.io/caret/modelList.html
-karet_train <- function(data, data_model="simple", karet_model="glm", model_seed=32343) {
+caret_train <- function(data, data_model="simple", caret_model="glm", model_seed=32343) {
     set.seed(model_seed)
     
     # map field to model
@@ -27,18 +27,68 @@ karet_train <- function(data, data_model="simple", karet_model="glm", model_seed
     training = data[inTrain[,1],] # first column is row index
     testing  = data[-inTrain[,1],]
     
+    return (training)
+    
     cat ("Train data dimension ") 
     print (dim(training))
     
     cat ("Test data dimension ") 
     print (dim(testing))
     
+    drops = c("click") # separate test result column
+#     x = data[,!(names(data) %in% drops), with=FALSE]
+    
+#     modelFit <- train(
+#                 click ~.,
+#                 data=training, 
+#                 method = "nnet",
+#                 preProcess = "range", 
+# #                 tuneLength = 2,
+#                 trace = FALSE,
+#                 maxit = 100
+#             )
+    
     modelFit <- train(
-                click ~.,data=training, 
-                method="knn",
-                preProcess = c("center", "scale"),
-                tuneLength = 10
+                click ~.,
+#                 data= as.data.frame.matrix(training), 
+                data=training, 
+#                 preProcess = "range", 
+                tuneLength = 2,
+#                 trace = FALSE,
+                maxit = 50,
+                method = "nnet"
             )
+   
+# call nnet directly
+# nnetFit <- nnet(
+#     click ~.,
+#     data=training, 
+# #     rang = 0.1,
+# #     decay = 0.01, 
+#     size = 10,
+# #     softmax=TRUE,
+# #     linout=TRUE,
+#     entropy=TRUE,
+#     maxit = 10
+# )
+
+
+
+# nnetFit <- nnet(
+#     training[,1:( ncol(training)-1 ),with=F], 
+#     training[,"click",with=F],
+#     #     rang = 0.1,
+#     #     decay = 0.01, 
+#     size = 1,
+#     #     softmax=TRUE,
+#     #     linout=TRUE,
+# #     entropy=TRUE,
+#     maxit = 10
+# )
+
+
+#====================
+
     modelFit
     
     
@@ -61,6 +111,28 @@ int_model_simple <- function(data, type) {
         "app_category",
         "device_type",
         "device_conn_type"
+        
+#         "C1",
+#         "banner_pos",
+#         "site_id",
+#         "site_domain",
+#         "site_category",
+#         "app_id",
+#         "app_domain",
+#         "app_category",
+#         "device_id",
+#         "device_ip",
+#         "device_model",
+#         "device_type",
+#         "device_conn_type",
+#         "C14",
+#         "C15",
+#         "C16",
+#         "C17",
+#         "C18",
+#         "C19",
+#         "C20",
+#         "C21"
     )
     
     if (type == "train") {
@@ -68,6 +140,11 @@ int_model_simple <- function(data, type) {
     }
     
     data[, col_list, with=FALSE]
+
+
+# data[data == "0"] = 1
+# training[training == "0"] = 1
+
 }
 
 interpret_data <- function( data, model="simple", type="train") {
@@ -91,6 +168,10 @@ read_data <- function(file_name, limit=0) {
         data = fread(file_path, colClasses="character")
     }
     
+    # change click to %
+    # convert hour to timestamp
+    data$click = as.numeric(data$click) * 100
+    data$hour = as.numeric(data$hour)
     data
 }
 

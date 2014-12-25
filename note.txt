@@ -54,3 +54,13 @@ test_set[,c("id","C1"),with=FALSE]
 
 # From ?data.table:
 # When with=FALSE, j is a vector of names or positions to select, similar to a data.frame. with=FALSE is often useful in data.table to select columns dynamically.
+
+save_model <- function (hm_model, file = "set_100_model.RData") {
+    saveRDS(m, file)
+}
+
+load_model <- function (file = "set_100_model.RData") {
+    m <- readRDS(file)
+    m
+}
+
