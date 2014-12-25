@@ -64,3 +64,13 @@ load_model <- function (file = "set_100_model.RData") {
     m
 }
 
+
+# Plot
+> qplot(click,colour=banner_pos,data=train_set,geom="density")
+> qplot(banner_pos,site_category,colour=click,data=train_set)
+
+# Aggregate
+> aggregate(train_set$click, list(train_set$banner_pos), mean  )
+
+
+

@@ -8,12 +8,79 @@
 # Test Data
 # d = head(train_set, 100)
 # t = interpret_data(d)
+# plot_aggregate_to_click(train_set)
 
 # Train
 # k = caret_train(train_set)
 
 require(data.table)
-library(caret)
+# library(caret)
+# library(ggplot2)
+
+plot_aggregate_to_click <- function(data) {
+    # mean click by fields 
+    
+    col_list = c(
+#         "banner_pos",
+#         "site_category",
+#         "app_category",
+#         "device_type",
+#         "device_conn_type"
+        
+                "C1",
+                "banner_pos",
+#                 "site_id",
+                "site_domain",
+                "site_category",
+#                 "app_id",
+                "app_domain",
+                "app_category",
+#                 "device_id",
+#                 "device_ip",
+                "device_model",
+                "device_type",
+                "device_conn_type",
+                "C14",
+                "C15",
+                "C16",
+                "C17",
+                "C18",
+                "C19",
+                "C20",
+                "C21"
+    )
+    
+    
+    # multiple
+    # aggregate(train_set$click, list(train_set$banner_pos, train_set$app_category), mean  )
+    
+    # Single
+    for (col_name in col_list) {
+        print ( c("Aggregate click -", col_name), quote=FALSE )
+        
+        agg = aggregate(train_set$click, list(train_set[[col_name]]), mean  )
+        
+        names(agg) = c(col_name, "mean")
+        agg = agg[order(-agg$mean),]
+#         return(agg)
+        print(agg)
+        
+        # Plot
+        file_name = paste("aggregate_to_click",col_name,sep="-")
+        file_name = paste(file_name,"png",sep=".")
+        file_name = paste("plot",file_name,sep="/")
+        
+#         print(file_name)
+        
+        ggplot(data=agg, aes_string(x=col_name, y="mean", colour=col_name)) + 
+            geom_point(size=3) +
+            geom_hline(yintercept=80, colour="darkgreen", linetype = "longdash") +
+            geom_hline(yintercept=5, colour="red", linetype = "longdash")
+        
+        ggsave(file=file_name, width=10, height=6)
+        
+    }
+}
 
 # Model list http://topepo.github.io/caret/modelList.html
 caret_train <- function(data, data_model="simple", caret_model="glm", model_seed=32343) {
@@ -107,10 +174,10 @@ int_model_simple <- function(data, type) {
     
     col_list = c(
         "banner_pos",
-        "site_category",
-        "app_category",
-        "device_type",
-        "device_conn_type"
+#         "site_category",
+#         "app_category",
+#         "device_type",
+#         "device_conn_type"
         
 #         "C1",
 #         "banner_pos",
