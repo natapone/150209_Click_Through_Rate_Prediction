@@ -13,11 +13,38 @@
 # Train
 # k = caret_train(train_set)
 
-require(data.table)
-# library(caret)
-# library(ggplot2)
+# = Train Columns =
+# id
+# click **
+# hour
+# C1
+# banner_pos
+# site_id
+# site_domain
+# site_category
+# app_id
+# app_domain
+# app_category
+# device_id
+# device_ip
+# device_model
+# device_type
+# device_conn_type
+# C14
+# C15
+# C16
+# C17
+# C18
+# C19
+# C20
+# C21
 
-plot_aggregate_to_click <- function(data) {
+
+require(data.table)
+library(caret)
+library(ggplot2)
+
+plot_aggregate_to_click <- function(train_set) {
     # mean click by fields 
     
     col_list = c(
@@ -74,8 +101,8 @@ plot_aggregate_to_click <- function(data) {
         
         ggplot(data=agg, aes_string(x=col_name, y="mean", colour=col_name)) + 
             geom_point(size=3) +
-            geom_hline(yintercept=80, colour="darkgreen", linetype = "longdash") +
-            geom_hline(yintercept=5, colour="red", linetype = "longdash")
+            geom_hline(yintercept=0.8, colour="darkgreen", linetype = "longdash") +
+            geom_hline(yintercept=0.05, colour="red", linetype = "longdash")
         
         ggsave(file=file_name, width=10, height=6)
         
@@ -104,6 +131,8 @@ caret_train <- function(data, data_model="simple", caret_model="glm", model_seed
     
     drops = c("click") # separate test result column
 #     x = data[,!(names(data) %in% drops), with=FALSE]
+    
+    modelFit <- train(type ~.,data=training, method="glm")
     
 #     modelFit <- train(
 #                 click ~.,
@@ -173,33 +202,33 @@ int_model_simple <- function(data, type) {
     # banner_pos, site_category, app_category, device_type, device_conn_type
     
     col_list = c(
-        "banner_pos",
+#         "banner_pos",
 #         "site_category",
 #         "app_category",
 #         "device_type",
 #         "device_conn_type"
         
-#         "C1",
-#         "banner_pos",
+        "C1",
+        "banner_pos",
 #         "site_id",
-#         "site_domain",
-#         "site_category",
+        "site_domain",
+        "site_category",
 #         "app_id",
-#         "app_domain",
-#         "app_category",
+        "app_domain",
+        "app_category",
 #         "device_id",
 #         "device_ip",
-#         "device_model",
-#         "device_type",
-#         "device_conn_type",
-#         "C14",
-#         "C15",
-#         "C16",
-#         "C17",
-#         "C18",
-#         "C19",
-#         "C20",
-#         "C21"
+        "device_model",
+        "device_type",
+        "device_conn_type",
+        "C14",
+        "C15",
+        "C16",
+        "C17",
+        "C18",
+        "C19",
+        "C20",
+        "C21"
     )
     
     if (type == "train") {
@@ -207,11 +236,7 @@ int_model_simple <- function(data, type) {
     }
     
     data[, col_list, with=FALSE]
-
-
-# data[data == "0"] = 1
-# training[training == "0"] = 1
-
+    data
 }
 
 interpret_data <- function( data, model="simple", type="train") {
@@ -226,19 +251,82 @@ interpret_data <- function( data, model="simple", type="train") {
 }
 
 read_data <- function(file_name, limit=0) {
+    
+    # column data type ny file name
+    if (file_name == 'train') {
+        col_class_list = c(
+            "NULL",
+            "numeric",
+            "numeric",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character"
+        )
+    } else if (file_name == 'test') {
+        # no click data
+        col_class_list = c(
+            "NULL",
+            "numeric",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character",
+            "character"
+        )
+    }
+    
     # read data by type
     file_path = paste("Raw", file_name, sep = "/")
     
+    #data = fread(file_path) # much faster
+#     data = fread(file_path, header = TRUE, colClasses = col_class_list) # acceptable fast, 10 min
+#     return(data)
+    # end test
+    
     if (limit) {
-        data = fread(file_path, nrows=limit, colClasses="character")
+        data = fread(file_path, nrows=limit, colClasses = col_class_list)
     } else {
-        data = fread(file_path, colClasses="character")
-    }
+        data = fread(file_path, colClasses = col_class_list)
+    } # acceptable fast, 10 min
     
     # change click to %
     # convert hour to timestamp
-    data$click = as.numeric(data$click) * 100
-    data$hour = as.numeric(data$hour)
+#     data$click = as.numeric(data$click) * 100
+#     data$hour = as.numeric(data$hour)
     data
 }
 

@@ -71,6 +71,17 @@ load_model <- function (file = "set_100_model.RData") {
 
 # Aggregate
 > aggregate(train_set$click, list(train_set$banner_pos), mean  )
+> agg = aggregate(training$C1, list(training$C1), length  )
 
+# Aggregate average and count
+> aggregate(training$click, list(training$banner_pos, training$device_conn_type), 
+          FUN=function(x) c(mn =mean(x), c=length(x) ))
 
+#determining memory usage
+#http://stackoverflow.com/questions/1395270/determining-memory-usage
+sort( sapply(ls(),function(x){object.size(get(x))}))
+
+# Speedup save and load data
+http://stackoverflow.com/questions/11559628/speed-up-rdata-load
+system.time(saveRDS(train_set,file=“train_set_full.RData",compress=F))
 
