@@ -75,6 +75,8 @@ plot_aggregate_to_click <- function(train_set) {
                 "C19",
                 "C20",
                 "C21"
+
+        
     )
     
     
@@ -85,10 +87,16 @@ plot_aggregate_to_click <- function(train_set) {
     for (col_name in col_list) {
         print ( c("Aggregate click -", col_name), quote=FALSE )
         
-        agg = aggregate(train_set$click, list(train_set[[col_name]]), mean  )
-        
-        names(agg) = c(col_name, "mean")
-        agg = agg[order(-agg$mean),]
+        agg = aggregate(train_set$click, list(train_set[[col_name]]),   
+                    FUN=function(x) c(
+                        "avg" =mean(x) * 100, # return %
+                        "count"  =length(x) / 40428967 * 100 # total rows
+                    ) # return as matrix
+            )
+#         return(agg)
+        names(agg) = c(col_name, "summary")
+        agg = agg[order(-agg$summary[,"avg"]),]
+
 #         return(agg)
         print(agg)
         
@@ -97,13 +105,16 @@ plot_aggregate_to_click <- function(train_set) {
         file_name = paste(file_name,"png",sep=".")
         file_name = paste("plot",file_name,sep="/")
         
-#         print(file_name)
-        
-        ggplot(data=agg, aes_string(x=col_name, y="mean", colour=col_name)) + 
-            geom_point(size=3) +
-            geom_hline(yintercept=0.8, colour="darkgreen", linetype = "longdash") +
-            geom_hline(yintercept=0.05, colour="red", linetype = "longdash")
-        
+        ggplot(data=agg, aes_string(x=col_name, y="summary[,'avg']", colour="summary[,'count']", size="summary[,'count']")) + 
+            geom_point( alpha=0.7) +
+            scale_colour_gradientn( colours=rainbow(7)) +
+#             scale_colour_gradient2(low="blue", high="red", mid="green", midpoint=0) +
+            geom_hline(yintercept=80, colour="darkgreen", linetype = "longdash") +
+            geom_hline(yintercept=5, colour="red", linetype = "longdash") +
+            theme(
+                panel.background=element_rect(fill="grey97")
+            )
+
         ggsave(file=file_name, width=10, height=6)
         
     }
@@ -132,7 +143,7 @@ caret_train <- function(data, data_model="simple", caret_model="glm", model_seed
     drops = c("click") # separate test result column
 #     x = data[,!(names(data) %in% drops), with=FALSE]
     
-    modelFit <- train(type ~.,data=training, method="glm")
+    modelFit <- train(click ~.,data=t, method="glm")
     
 #     modelFit <- train(
 #                 click ~.,
@@ -202,33 +213,28 @@ int_model_simple <- function(data, type) {
     # banner_pos, site_category, app_category, device_type, device_conn_type
     
     col_list = c(
-#         "banner_pos",
-#         "site_category",
-#         "app_category",
-#         "device_type",
-#         "device_conn_type"
         
         "C1",
         "banner_pos",
 #         "site_id",
-        "site_domain",
+#         "site_domain",
         "site_category",
 #         "app_id",
-        "app_domain",
-        "app_category",
+#         "app_domain",
+        "app_category"
 #         "device_id",
 #         "device_ip",
-        "device_model",
-        "device_type",
-        "device_conn_type",
-        "C14",
-        "C15",
-        "C16",
-        "C17",
-        "C18",
-        "C19",
-        "C20",
-        "C21"
+#         "device_model",
+#         "device_type",
+#         "device_conn_type",
+#         "C14",
+#         "C15",
+#         "C16",
+#         "C17",
+#         "C18",
+#         "C19",
+#         "C20",
+#         "C21"
     )
     
     if (type == "train") {
@@ -236,11 +242,10 @@ int_model_simple <- function(data, type) {
     }
     
     data[, col_list, with=FALSE]
-    data
 }
 
 interpret_data <- function( data, model="simple", type="train") {
-    print ( c("Model", model), quote=FALSE )
+    print ( c("Model", type, model), quote=FALSE )
     if (model == "simple") {
         data = int_model_simple(data, type)
     } else {
