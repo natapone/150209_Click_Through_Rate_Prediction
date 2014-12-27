@@ -85,3 +85,18 @@ sort( sapply(ls(),function(x){object.size(get(x))}))
 http://stackoverflow.com/questions/11559628/speed-up-rdata-load
 system.time(saveRDS(train_set,file=“train_set_full.RData",compress=F))
 
+
+agg = aggregate(train_set$click, list(train_set$banner_pos, train_set$C14),   
+                    FUN=function(x) c(
+                        "avg" =mean(x) * 100, # return %
+                        "count"  =length(x) / 40428967 * 100 # total rows
+                    ) # return as matrix
+            )
+
+agg = aggregate(t$click, list(t$banner_pos, t$C14),   
+                    FUN=function(x) c(
+                        "avg" =mean(x) * 100, # return %
+                        "count"  =length(x) / 40428967 * 100 # total rows
+                    ) # return as matrix
+            )
+

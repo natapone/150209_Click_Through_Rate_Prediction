@@ -7,8 +7,9 @@
 
 # Test Data
 # d = head(train_set, 100)
-# t = interpret_data(d)
+# t = interpret_data(train_set)
 # plot_aggregate_to_click(train_set)
+# plot_aggregate_to_click_banner_C14(train_set)
 
 # Train
 # k = caret_train(train_set)
@@ -43,6 +44,45 @@
 require(data.table)
 library(caret)
 library(ggplot2)
+
+plot_aggregate_to_click_banner_C14 <- function(train_set) {
+    
+    col_list = c(
+        "banner_pos",
+        "C14"        
+    )
+    
+    agg = aggregate(train_set$click, list(train_set$banner_pos, train_set$C14),   
+                    FUN=function(x) c(
+                        "avg" =mean(x) * 100, # return %
+                        "count"  =length(x) / 40428967 * 100 # total rows
+                    ) # return as matrix
+    )
+    
+    names(agg) = c("banner_pos", "C14", "summary")
+    agg = agg[order(-agg$summary[,"avg"]),]
+    
+    # Plot
+    file_name = "plot/aggregate_to_click_banner_C14.png"
+    
+    banner_pos_C14 = paste(agg$banner_pos, agg$C14, sep="-")
+    agg = cbind(agg, banner_pos_C14)
+    
+#     print(agg)
+#     agg
+
+    ggplot(data=agg, aes_string(x="banner_pos_C14", y="summary[,'avg']", colour="summary[,'count']", size="summary[,'count']")) + 
+        geom_point( alpha=0.7) +
+        scale_colour_gradientn( colours=rainbow(7)) +
+        #             scale_colour_gradient2(low="blue", high="red", mid="green", midpoint=0) +
+        geom_hline(yintercept=80, colour="darkgreen", linetype = "longdash") +
+        geom_hline(yintercept=5, colour="red", linetype = "longdash") +
+        theme(
+            panel.background=element_rect(fill="grey97")
+        )
+    
+    ggsave(file=file_name, width=10, height=6)
+}
 
 plot_aggregate_to_click <- function(train_set) {
     # mean click by fields 
