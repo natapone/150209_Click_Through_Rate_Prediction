@@ -103,4 +103,9 @@ levels(when$day) <- c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 model.matrix(~day, when)
 
 #——
+t[t$.outcome == 1]
+predictions <- predict(modelFit,newdata= testing[testing$click == 1])
+
+inTrain = createDataPartition(y=data$click, p=0.1, list=FALSE, time = 10)
+inTrain[,3]
 

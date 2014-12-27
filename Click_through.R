@@ -76,10 +76,14 @@ create_dummy_var <- function(data) {
     # keep "click" if Training set
     click = NULL
     if ( "click" %in% colnames(data)) {
-        click = data$click
+        click = as.factor(data$click) # force caret to do classification
     }
     
+    print ("-- start model.matrix")
     data = model.matrix(f, data) # replace instead of create new
+    
+    print ("-- convert to data.table")
+    data = as.data.table(data)
     
     # return click if Training set
     if ( !is.null(click) ) {
@@ -205,18 +209,20 @@ plot_aggregate_to_click <- function(train_set) {
 }
 
 # Model list http://topepo.github.io/caret/modelList.html
-caret_train <- function(data, data_model="simple", caret_model="glm", model_seed=32343) {
+caret_train <- function(data, model_seed=32343, data_model="simple", caret_model="glm") {
     set.seed(model_seed)
     
     # map field to model
     data = interpret_data(data, data_model, "train")
     
-    inTrain = createDataPartition(y=data$click, p=0.75, list=FALSE)
+    inTrain = createDataPartition(y=data$click, p=0.1, list=FALSE)
     
     training = data[inTrain[,1],] # first column is row index
     testing  = data[-inTrain[,1],]
     
-    return (training)
+    ###
+    summary(training)
+    return (testing)
     
     cat ("Train data dimension ") 
     print (dim(training))
@@ -227,23 +233,30 @@ caret_train <- function(data, data_model="simple", caret_model="glm", model_seed
     drops = c("click") # separate test result column
 #     x = data[,!(names(data) %in% drops), with=FALSE]
     
-    modelFit <- train(click ~.,data=t, method="glm")
+    modelFit <- train(click ~.,data=t, method="glm") # ada
     
-#     modelFit <- train(
-#                 click ~.,
-#                 data=training, 
-#                 method = "nnet",
-#                 preProcess = "range", 
-# #                 tuneLength = 2,
-#                 trace = FALSE,
-#                 maxit = 100
-#             )
+knnFit1 <- train(click ~.,data=d,
+                 method = "knn",
+                 preProcess = c("center", "scale"),
+                 tuneLength = 10,
+                 trControl = trainControl(method = "cv"))
     
+    modelFit <- train(
+                click ~.,
+                data=training, 
+                method = "nnet",
+                preProcess = "range", 
+                tuneLength = 2,
+                trace = FALSE,
+                maxit = 100
+            )
+    
+
     modelFit <- train(
                 click ~.,
 #                 data= as.data.frame.matrix(training), 
                 data=training, 
-#                 preProcess = "range", 
+                preProcess = "range", 
                 tuneLength = 2,
 #                 trace = FALSE,
                 maxit = 50,
@@ -350,7 +363,7 @@ read_data <- function(file_name, limit=0) {
     if (file_name == 'train') {
         col_class_list = c(
             "NULL",
-            "numeric",
+            "character",
             "numeric",
             "character",
             "character",
