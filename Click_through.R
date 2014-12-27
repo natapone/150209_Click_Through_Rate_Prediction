@@ -49,7 +49,45 @@ library(caret)
 library(ggplot2)
 
 
+create_dummy_var <- function(data) {
+    # read levels from file
+    all_level = readRDS("rdata/all_level.RData")
+    
+    # loop transform column data in to dummy var
+    list_factors = c()
+    for (col_name in colnames(data)) {
+        # print(col_name)
+        
+        col_data = data[[col_name]]
+        
+        if ( !is.null(all_level[[col_name]])) {
+            print( c(col_name , "HIT!") )
+            
+            # all levels
+            levels(data[[col_name]]) = all_level[[col_name]]
+            list_factors <- c(list_factors, col_name)
+        }
+        
+    }
+    list_factors
+    # variable as formular
+    f = as.formula(paste("~",paste(list_factors,collapse="+")))
+    
+    # keep "click" if Training set
+    click = NULL
+    if ( "click" %in% colnames(data)) {
+        click = data$click
+    }
+    
+    data = model.matrix(f, data) # replace instead of create new
+    
+    # return click if Training set
+    if ( !is.null(click) ) {
+        data = cbind(data, click)
+    }
 
+    data
+}
 
 plot_aggregate_to_click_banner_C14 <- function(train_set) {
     
@@ -287,7 +325,12 @@ int_model_simple <- function(data, type) {
         col_list = c(col_list, "click")
     }
     
-    data[, col_list, with=FALSE]
+    data = data[, col_list, with=FALSE]
+    
+    # create Dummy Variables
+    data = create_dummy_var(data)
+
+    data
 }
 
 interpret_data <- function( data, model="simple", type="train") {
