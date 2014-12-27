@@ -2,8 +2,11 @@
 # source("Click_through.R")
 # train_set = read_data('train',1000)
 # test_set = read_data('test')
+
+# Count
 # validate_count_unique(train_set)
 # test_without_train(train_set, test_set)
+# all_level = list_all_level()
 
 # Test Data
 # d = head(train_set, 100)
@@ -44,6 +47,85 @@
 require(data.table)
 library(caret)
 library(ggplot2)
+
+list_all_level <- function(test_set,limit=0) {
+    col_list = c(
+        
+        "C1",
+        "banner_pos",
+        #         "site_id",
+        #         "site_domain",
+        "site_category",
+        #         "app_id",
+        #         "app_domain",
+        "app_category",
+        #         "device_id",
+        #         "device_ip",
+        #         "device_model",
+        "device_type",
+        "device_conn_type",
+        #         "C14",
+        "C15",
+        "C16",
+        #         "C17",
+        "C18"
+        #         "C19",
+        #         "C20",
+        #         "C21"
+    )
+    
+    # read train
+    train_set = read_data('train',limit)
+    
+    print("Read train set")
+    train_col = list_all_level_read_col(col_list, train_set)
+    print(train_col)
+    remove(train_set)
+    
+#     return(train_col)
+    
+    # read test
+    test_set = read_data('test',limit)
+    print("Read test set")
+    test_col = list_all_level_read_col(col_list, test_set)
+    print(test_col)
+    remove(test_set)
+
+    # merge level list
+    all_level = list()
+    for (col_name in col_list) {
+        print (paste("Merge", col_name))
+        
+        l = c(train_col[[col_name]], test_col[[col_name]])
+        l = unique(l)
+        
+        # insert
+        all_level[[col_name]] = l
+    }
+    
+    # save to file
+    all_level
+}
+
+list_all_level_read_col <- function(col_list, data) {
+    l = list()
+    for (col_name in col_list) {
+        # print(col_name)
+        
+        col_data = data[[col_name]]
+        col_data = unique(col_data) # only unique
+        
+        #print (length(data[[col_name]])) # count data
+        print( c(col_name , length(col_data)) )
+        
+        # save to list (hash)
+        l[[col_name]] = col_data
+        
+    }
+    
+    l
+}
+
 
 plot_aggregate_to_click_banner_C14 <- function(train_set) {
     
@@ -254,7 +336,7 @@ int_model_simple <- function(data, type) {
     
     col_list = c(
         
-        "C1",
+#         "C1",
         "banner_pos",
 #         "site_id",
 #         "site_domain",

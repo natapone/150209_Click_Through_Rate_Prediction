@@ -85,18 +85,22 @@ sort( sapply(ls(),function(x){object.size(get(x))}))
 http://stackoverflow.com/questions/11559628/speed-up-rdata-load
 system.time(saveRDS(train_set,file=“train_set_full.RData",compress=F))
 
+# transform classes to multiple columns
+> ?dummyVars
 
-agg = aggregate(train_set$click, list(train_set$banner_pos, train_set$C14),   
-                    FUN=function(x) c(
-                        "avg" =mean(x) * 100, # return %
-                        "count"  =length(x) / 40428967 * 100 # total rows
-                    ) # return as matrix
-            )
+# ===> normal use
+when <- data.frame(time = c("afternoon", "night", "afternoon",
+                            "morning", "morning", "morning",
+                            "morning", "afternoon", "afternoon"),
+                   day = c("Mon", "Mon", "Mon",
+                           "Wed", "Wed", "Fri",
+                           "Sat", "Sat", "Fri"))
 
-agg = aggregate(t$click, list(t$banner_pos, t$C14),   
-                    FUN=function(x) c(
-                        "avg" =mean(x) * 100, # return %
-                        "count"  =length(x) / 40428967 * 100 # total rows
-                    ) # return as matrix
-            )
+levels(when$time) <- c("morning", "afternoon", "night")
+levels(when$day) <- c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+
+## Default behavior:
+model.matrix(~day, when)
+
+#——
 
