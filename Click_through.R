@@ -363,9 +363,11 @@ read_data <- function(file_name, limit=0) {
     # end test
     
     if (limit) {
-        data = fread(file_path, nrows=limit, colClasses = col_class_list)
+        data = fread(file_path, nrows=limit, colClasses = col_class_list,
+                     sep=",", stringsAsFactors=FALSE)
     } else {
-        data = fread(file_path, colClasses = col_class_list)
+        data = fread(file_path, colClasses = col_class_list,
+                     sep=",", stringsAsFactors=FALSE)
     } # acceptable fast, 10 min
     
     # change click to %
