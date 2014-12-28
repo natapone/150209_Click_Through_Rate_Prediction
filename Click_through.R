@@ -8,6 +8,9 @@
 # test_without_train(train_set, test_set)
 # all_level = list_all_level()
 
+# Clean up
+# clean_data(train_set)
+
 # Test Data
 # d = head(train_set, 100)
 # t = interpret_data(train_set)
@@ -580,5 +583,73 @@ list_all_level_read_col <- function(col_list, data) {
     }
     
     l
+}
+
+clean_data <- function (data) {
+    # read data
+    
+    col_list = c(
+        "C1",
+        "banner_pos",
+        "site_id",
+        "site_domain",
+        "site_category",
+        "app_id",
+        "app_domain",
+        "app_category",
+        "device_id",
+        "device_ip",
+        "device_model",
+        "device_type",
+        "device_conn_type",
+        "C14",
+        "C15",
+        "C16",
+        "C17",
+        "C18",
+        "C19",
+        "C20",
+        "C21"
+    )
+    
+    # remove low frequency
+    # freq < 100 = rare
+    # freq < 1,000 = low
+    for (col_name in col_list) {
+        print( paste("Clean low fequency" , col_name) )
+        
+        agg = aggregate(data[[col_name]], list(data[[col_name]]), length)
+        names(agg) = c("col", "count")
+
+        # select only column : agg[agg$count <= 100,  "col"]    
+        rare_col = agg[agg$count < 10,  "col"]
+        low_col  = agg[(agg$count < 1000 & agg$count >= 10) ,  "col"]
+        
+        cat("-- rare ")
+        print(length(rare_col))
+        cat("-- low ")
+        print(length(low_col))
+        
+#         return(low_col)
+        
+        # replace RARE
+#         if(length(rare_col)) {
+# #             data[data[[col_name]] == rare_col, col_name] = "RARE"
+#             for(c_val in rare_col) {
+#                 data[data[[col_name]] == c_val, col_name] = "RARE"
+#             }
+#         }
+#         
+#         # replace LOW
+#         if(length(low_col)) {
+#             for(c_val in low_col) {
+#                 data[data[[col_name]] == c_val, col_name] = "LOW"
+#             }
+#         }
+    }
+    
+    # rewrite to file
+#     saveRDS(data, file = 'rdata/clean.RData',compress = F)
+    return(NULL)
 }
 
