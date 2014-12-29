@@ -463,6 +463,7 @@ validate_count_unique <- function(data) {
 test_without_train <- function(train, test) {
     
     field_list = c(
+        "hour",
         "C1",
         "banner_pos",
         "site_id",
@@ -630,6 +631,9 @@ clean_data <- function (data) {
         cat("-- low ")
         print(length(low_col))
         
+        
+#         dtQuery[,newClose:=c(101,401)]
+#         dtData[dtQuery,Close:=newClose]
 #         return(low_col)
         
         # replace RARE

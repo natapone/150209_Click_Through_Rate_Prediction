@@ -27,7 +27,28 @@ Data fields
 * C14-C21 -- anonymized categorical variables
 
 =========
+How data create? (assuming)
 
+Click/non-click records are subsampled based on different sampling strategies. We have subsampled much fewer non-click records, which makes the CTR really high.
+
+
+Data Cleanup ideas
+* replace low frequency with “RARE”
+	- apply to category (add, domain)
+	- be able to handle out of sample error
+	- will fix: site_category, app_domain, app_category
+
+* Size of web influent	CTR e.g. Amazon, Google
+	- count site_domain in log scale, call as “Traffic level”, remove site_domain
+* User activity influent CTR on some type of site
+	- assume that userid with difference ip in same timeframe is moveing
+	- Count IP of same (user + time) if > 1 = “IS_MOVING”, remove user id
+* generalize data
+	- remove “_id”, “_ip”
+
+
+
+=========
 # http://stackoverflow.com/questions/1727772/quickly-reading-very-large-tables-as-dataframes-in-r/15058684#15058684
 
 # validate ==> 
