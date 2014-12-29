@@ -1,6 +1,7 @@
 # USAGE
 # source("Click_through.R")
 # train_set = read_data('train',1000)
+# train_set = read_data('train',data_source="web", limit=0)
 # test_set = read_data('test')
 
 # Count
@@ -103,7 +104,7 @@ create_dummy_var <- function(data) {
 # Mark NULL: site_domain = c4e18dd6, app_domain = 7801e8d9
 proof_split_site_app_domain <- function(train_set) {
     site_index = which(train_set$site_domain == "c4e18dd6") # 15121739 entries
-    cat("Site domain count = ")
+    cat("Site domain c4e18dd6 count = ")
     print (length(site_index))
     
     not_site  = train_set[-site_index,]
@@ -386,7 +387,7 @@ interpret_data <- function( data, model="simple", type="train") {
     data
 }
 
-read_data <- function(file_name, limit=0) {
+read_data <- function(file_name, data_source="all", limit=0) {
     
     # column data type ny file name
     if (file_name == 'train') {
@@ -461,10 +462,14 @@ read_data <- function(file_name, limit=0) {
                      sep=",", stringsAsFactors=FALSE)
     } # acceptable fast, 10 min
     
-    # change click to %
-    # convert hour to timestamp
-#     data$click = as.numeric(data$click) * 100
-#     data$hour = as.numeric(data$hour)
+    if (data_source == "web" ) {
+        app_index = which(data$site_domain == "c4e18dd6") # site_domain "c4e18dd6" = marked as NULL
+        data = data[-app_index,]
+    } else if (data_source == "app") {
+        app_index = which(data$site_domain == "c4e18dd6")
+        data = data[app_index,]
+    }
+    
     data
 }
 
