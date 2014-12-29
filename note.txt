@@ -33,6 +33,8 @@ Click/non-click records are subsampled based on different sampling strategies. W
 
 
 Data Cleanup ideas
+* split web and mobile ads (site_domain/app_domain)
+
 * replace low frequency with “RARE”
 	- apply to category (add, domain)
 	- be able to handle out of sample error

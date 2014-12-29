@@ -20,6 +20,9 @@
 # Train
 # k = caret_train(train_set)
 
+# Proof
+# proof_split_site_app_domain()
+
 # = Train Columns =
 # id
 # click **
@@ -94,6 +97,29 @@ create_dummy_var <- function(data) {
     }
 
     data
+}
+
+# prove data is split into 2 group by site and app
+# Mark NULL: site_domain = c4e18dd6, app_domain = 7801e8d9
+proof_split_site_app_domain <- function(train_set) {
+    site_index = which(train_set$site_domain == "c4e18dd6") # 15121739 entries
+    cat("Site domain count = ")
+    print (length(site_index))
+    
+    not_site  = train_set[-site_index,]
+    cat("NOT site count = ")
+    print (nrow(not_site))
+    
+    proof_index = which(not_site$app_domain == "7801e8d9")
+    cat("App domain 7801e8d9 count =")
+    print (length(proof_index))
+    
+    if(length(proof_index) == nrow(not_site)) {
+        print("== Number not site match number of app ==")
+        print("## proof data is splited between APP and SITE ##")
+    } else {
+        print("== no good! ==")
+    }
 }
 
 plot_aggregate_to_click_banner_C14 <- function(train_set) {
