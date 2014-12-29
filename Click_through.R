@@ -393,7 +393,7 @@ read_data <- function(file_name, data_source="all", limit=0) {
     if (file_name == 'train') {
         col_class_list = c(
             "NULL",
-            "character",
+            "numeric",
             "numeric",
             "character",
             "character",
