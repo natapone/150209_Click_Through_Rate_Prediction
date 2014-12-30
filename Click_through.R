@@ -12,6 +12,9 @@
 # Clean up
 # clean_data(train_set)
 
+# RARE fix: reduce level of factor and support new value
+# > agg = replace_agg_rare(agg,p_rare=0.1)
+
 # Test Data
 # d = head(train_set, 100)
 # t = interpret_data(train_set)
@@ -166,11 +169,6 @@ plot_aggregate_to_click <- function(train_set) {
     # mean click by fields 
     
     col_list = c(
-#         "banner_pos",
-#         "site_category",
-#         "app_category",
-#         "device_type",
-#         "device_conn_type"
         
                 "C1",
                 "banner_pos",
@@ -193,13 +191,14 @@ plot_aggregate_to_click <- function(train_set) {
                 "C19",
                 "C20",
                 "C21"
-
         
     )
     
     
     # multiple
     # aggregate(train_set$click, list(train_set$banner_pos, train_set$app_category), mean  )
+    
+    all_row = nrow(train_set)
     
     # Single
     for (col_name in col_list) {
@@ -208,13 +207,18 @@ plot_aggregate_to_click <- function(train_set) {
         agg = aggregate(train_set$click, list(train_set[[col_name]]),   
                     FUN=function(x) c(
                         "avg" =mean(x) * 100, # return %
-                        "count"  =length(x) / 40428967 * 100 # total rows
+                        "count"  =length(x) / all_row * 100 # total rows
                     ) # return as matrix
             )
 #         return(agg)
         names(agg) = c(col_name, "summary")
         agg = agg[order(-agg$summary[,"avg"]),]
-
+        
+        # replace RARE
+# print("--all--")
+# print(agg)
+        agg = replace_agg_rare(agg)
+        
 #         return(agg)
         print(agg)
         
@@ -688,3 +692,27 @@ clean_data <- function (data) {
     return(NULL)
 }
 
+replace_agg_rare <- function(agg, p_rare=1) {
+    
+    rare_index = which(agg$summary[,"count"] <= p_rare)
+    if (length(rare_index) == 0) {
+        return(agg)
+    }
+    
+    cat("---rare_index----")
+    print(length(rare_index))
+    
+    agg_rare  = agg[rare_index,]
+    agg_normal = agg[-rare_index,]
+    
+    # copy 1 row of agg because it's hard to recreate the structure
+    rare_row = subset(agg[1,],TRUE)
+    
+    # change name to RARE
+    rare_row[1,1] = "RARE"
+    # cal average and sum %
+    rare_row$summary[,"avg"] = mean(agg_rare$summary[,"avg"])
+    rare_row$summary[,"count"] =sum(agg_rare$summary[,"count"])
+    
+    rbind(agg_normal, rare_row )
+}

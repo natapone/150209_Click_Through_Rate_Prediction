@@ -33,6 +33,7 @@ Click/non-click records are subsampled based on different sampling strategies. W
 
 
 Data Cleanup ideas
+* change epoch
 * split web and mobile ads (site_domain/app_domain)
 
 * replace low frequency with “RARE”
@@ -40,14 +41,37 @@ Data Cleanup ideas
 	- be able to handle out of sample error
 	- will fix: site_category, app_domain, app_category
 
-* Size of web influent	CTR e.g. Amazon, Google
-	- count site_domain in log scale, call as “Traffic level”, remove site_domain
+* Size of traffic influent	CTR e.g. Amazon, Google
+	- count *_domain in log scale, call as “Traffic level”, remove *_domain, *_id
 * User activity influent CTR on some type of site
 	- assume that userid with difference ip in same timeframe is moveing
 	- Count IP of same (user + time) if > 1 = “IS_MOVING”, remove user id
 * generalize data
 	- remove “_id”, “_ip”
+* find pair of column (Cxx) that maximise correlation
+	- assume ads is clicked because of matching keyword between current page and ads
+* define the feature is “interesting”
+	- Click mean of feature is > mean of all data
+	- Click mean of feature is very low (<3%) enough to assume as a non-click feature
+	- replace feature of mean between mean and 3% to BORING to reduce number of category
+	- How to cal mean??
+ 	- How to cal RARE??
+		* Count feature frequency by web/all
+		* Mask f < 1% as RARE
+		* create list of normal feature, 
+			+ when apply to test, replace as RARE if not in the list	
 
+		* REJECTED: RARE_HIGH	low frequency high click mean
+		* REJECTED: RARE_BORING 	low frequency mid click mean
+		* REJECTED: RARE_LOW    	low frequency very low click mean
+		* REJECTED: make list for original, RARE_HIGH, RARE_BORING
+
+* remove near zero => validate if this feature is good predictor or not
+nsv <- nearZeroVar(train_set,saveMetrics = T)
+App# site_id, site_domain, site_category, C15, C16
+Web# app_id, app_domain, app_category, device_id, device_conn_type
+
+* Transform list*
 
 
 =========
@@ -131,4 +155,10 @@ predictions <- predict(modelFit,newdata= testing[testing$click == 1])
 
 inTrain = createDataPartition(y=data$click, p=0.1, list=FALSE, time = 10)
 inTrain[,3]
+
+# epoch to hour of the day
+t=14103100
+d = as.POSIXlt(t, origin="1970-01-01", tz="GMT")
+d = as.POSIXlt(t, origin="1970-01-01", tz="GMT")$hour
+
 
