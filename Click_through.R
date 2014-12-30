@@ -23,6 +23,7 @@
 
 # Train
 # k = caret_train(train_set)
+# m = train_model_intersect_prob(train_set)
 
 # Proof
 # proof_split_site_app_domain()
@@ -58,6 +59,130 @@ require(data.table)
 library(caret)
 library(ggplot2)
 
+train_model_intersect_prob <- function(train_set, file_name = "intersect_prob", p_rare=0.1) {
+    
+    # validate if data is from web or app
+    app_index = which(train_set$site_domain == "c4e18dd6")
+    if (length(app_index) > 0) {
+        data_source = "app"
+    } else {
+        data_source = "web"
+    }
+    
+    file_name = paste("model",file_name, data_source, sep="_")
+    file_name = paste(file_name, "RData", sep=".")
+    file_name = paste("rdata", file_name, sep="/")
+    
+    cat("data_source = ")
+    print(data_source)
+    
+    # refactoring from plot_aggregate_to_click
+    if (data_source == "app") {
+        col_list = c(
+            "C1",
+            "banner_pos",
+    #         "site_id",
+    #         "site_domain",
+    #         "site_category",
+    #         "app_id",
+            "app_domain",
+            "app_category",
+    #         "device_id",
+    #         "device_ip",
+            "device_model",
+            "device_type",
+            "device_conn_type",
+            "C14",
+            "C15",
+            "C16",
+            "C17",
+            "C18",
+            "C19",
+            "C20",
+            "C21"
+        )
+    } else {
+        col_list = c(
+            "C1",
+            "banner_pos",
+    #         "site_id",
+            "site_domain",
+            "site_category",
+    #         "app_id",
+    #         "app_domain",
+    #         "app_category",
+    #         "device_id",
+    #         "device_ip",
+            "device_model",
+            "device_type",
+            "device_conn_type",
+            "C14",
+            "C15",
+            "C16",
+            "C17",
+            "C18",
+            "C19",
+            "C20",
+            "C21"
+        )
+    }
+    
+    all_row = nrow(train_set)
+    
+    cat("Rare if frequency <")
+    cat(p_rare)
+    print(" %")
+    
+    model = list()
+    for (col_name in col_list) {
+        print ( paste("Cal click -", col_name) )
+        
+        agg = aggregate(train_set$click, list(train_set[[col_name]]),   
+                        FUN=function(x) c(
+                            "avg" =mean(x) * 100, # return %
+                            "count"  =length(x) / all_row * 100 # total rows
+                        ) # return as matrix
+        )
+        #         return(agg)
+        names(agg) = c(col_name, "summary")
+        agg = agg[order(-agg$summary[,"avg"]),]
+        
+        agg = replace_agg_rare(agg)
+        
+        #         return(agg)
+        
+        # save to model as list()
+        
+        f = list()
+        for(n in 1:nrow(agg)) {
+            a = agg[n,]
+            # f = convert_freq(a)
+            # print(agg[1])
+            
+            f[[ agg[n, 1] ]] = agg[n, 2]
+            
+        }
+        # to read avg
+        # f["1005"][[1]][1]
+        # or
+        # a = f["1005"]
+        # a[[1]][1]
+        # or 
+        # m$C21$RARE[1]
+        
+        model[[col_name]] = f
+    }
+    
+    # If no key is matched, use total CTR
+    model[["CTR"]] = mean(train_set$click)
+    
+    # save to file
+    saveRDS(model, file = file_name)
+    cat("Save model to ")
+    print(file_name)
+    
+    model
+}
 
 create_dummy_var <- function(data) {
     # read levels from file
@@ -214,9 +339,6 @@ plot_aggregate_to_click <- function(train_set) {
         names(agg) = c(col_name, "summary")
         agg = agg[order(-agg$summary[,"avg"]),]
         
-        # replace RARE
-# print("--all--")
-# print(agg)
         agg = replace_agg_rare(agg)
         
 #         return(agg)

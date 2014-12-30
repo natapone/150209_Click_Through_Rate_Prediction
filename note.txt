@@ -71,8 +71,11 @@ nsv <- nearZeroVar(train_set,saveMetrics = T)
 App# site_id, site_domain, site_category, C15, C16
 Web# app_id, app_domain, app_category, device_id, device_conn_type
 
-* Transform list*
+===== MODEL ====
 
+## Simple intersection probability ##
+> m = train_model_intersect_prob(train_set)
+> p = train_model_intersect_prob(test_set)
 
 =========
 # http://stackoverflow.com/questions/1727772/quickly-reading-very-large-tables-as-dataframes-in-r/15058684#15058684
