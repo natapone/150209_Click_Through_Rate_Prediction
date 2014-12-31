@@ -59,6 +59,93 @@ require(data.table)
 library(caret)
 library(ggplot2)
 
+predict_model_intersect_prob <- function(test_set) {
+    # data is web or app
+    app_index = which(train_set$site_domain == "c4e18dd6")
+    if (length(app_index) > 0) {
+        data_source = "app"
+    } else {
+        data_source = "web"
+    }
+    
+    # read model file
+    model_path = paste("rdata/model_intersect_prob_",data_source,".RData",sep="")
+    m <- readRDS(model_path)
+    
+    # if there is column "click" -> test mode
+    test_mode = FALSE
+    if ( "click" %in% colnames(test_set)) {
+        test_mode = TRUE
+        print("== Test mode ==")
+    }
+    
+    # loop read row
+    for(n in 1:nrow(test_set)) {
+        total_prob = 1
+        t = test_set[n,]
+        
+#         print(t)
+        
+        
+        # loop column
+        for (col_name in colnames(t)) {
+            
+            col_val = t[[col_name]]
+#             cat(col_name)
+#             print(col_val)
+            
+            
+            if (!is.null(m[[col_name]])) {
+#                 return(m[[col_name]])
+                
+                # avg, count
+                # return mean
+                col_mean = m[[col_name]][[col_val]][1]
+                
+                # if null, use RARE or total click mean
+                if(is.null(col_mean)) {
+                    # RARE
+                    if(!is.null(m[[col_name]][["RARE"]][1])) {
+#                         cat("RARE ")
+                        col_mean = m[[col_name]][["RARE"]][1] / 100
+                    } else {
+#                         cat("MISS ")
+#                         col_mean = m[["CTR"]]
+                        cat(col_name) = 0
+                    }
+                    
+                    
+                    
+                } else {
+                    col_mean = col_mean / 100
+                }
+                
+                # cal prob
+                total_prob = total_prob + col_mean
+                
+#                 cat("---------------")
+#                 cat(col_mean)
+#                 cat(" => ")
+#                 print(total_prob)
+            }
+            
+#             return(m[[col_name]])
+            
+            #["1005"][[1]][1]
+        }
+        
+        cat("Click ")
+        cat(t$click)
+        cat(" ++++ Total prob == ")
+        print(total_prob)
+#         return(total_prob)
+    }
+    
+    # read from model
+    
+    
+}
+
 train_model_intersect_prob <- function(train_set, file_name = "intersect_prob", p_rare=0.1) {
     
     # validate if data is from web or app
