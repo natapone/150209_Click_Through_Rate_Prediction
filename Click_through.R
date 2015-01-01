@@ -600,65 +600,66 @@ interpret_data <- function( data, model="simple", type="train") {
     data
 }
 
-read_data <- function(file_name, data_source="all", limit=0) {
-    
-    # column data type ny file name
-    if (file_name == 'train') {
-        col_class_list = c(
-            "NULL",
-            "numeric",
-            "numeric",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character"
-        )
-    } else if (file_name == 'test') {
-        # no click data
-        col_class_list = c(
-            "NULL",
-            "numeric",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character",
-            "character"
-        )
+read_data <- function(file_name, data_source="all", limit=0, col_class_list=NULL) {
+    if(is.null(col_class_list)) {
+        # column data type ny file name
+        if (file_name == 'train') {
+            col_class_list = c(
+                "NULL",
+                "numeric",
+                "numeric",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character"
+            )
+        } else if (file_name == 'test') {
+            # no click data
+            col_class_list = c(
+                "NULL",
+                "numeric",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character",
+                "character"
+            )
+        }
     }
-    
+
     # read data by type
     file_path = paste("Raw", file_name, sep = "/")
     
