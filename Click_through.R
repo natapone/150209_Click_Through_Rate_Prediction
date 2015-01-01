@@ -925,3 +925,15 @@ replace_agg_rare <- function(agg, p_rare=1) {
     
     rbind(agg_normal, rare_row )
 }
+
+check_source <- function(data) {
+    # data is web or app
+    app_index = which(train_set$site_domain == "c4e18dd6")
+    if (length(app_index) > 0) {
+        data_source = "app"
+    } else {
+        data_source = "web"
+    }
+    
+    data_source
+}
