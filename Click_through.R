@@ -146,7 +146,7 @@ predict_model_intersect_prob <- function(test_set) {
     
 }
 
-train_model_intersect_prob <- function(train_set, file_name = "intersect_prob", p_rare=0.1) {
+train_model_intersect_prob <- function(train_set, file_name = "intersect_prob", p_rare=1) {
     
     # validate if data is from web or app
     app_index = which(train_set$site_domain == "c4e18dd6")
@@ -226,15 +226,15 @@ train_model_intersect_prob <- function(train_set, file_name = "intersect_prob", 
         
         agg = aggregate(train_set$click, list(train_set[[col_name]]),   
                         FUN=function(x) c(
-                            "avg" =mean(x) * 100, # return %
+                            "rate"   =sum(x) / all_row * 100, # click rate compare to all
                             "count"  =length(x) / all_row * 100 # total rows
                         ) # return as matrix
         )
         #         return(agg)
         names(agg) = c(col_name, "summary")
-        agg = agg[order(-agg$summary[,"avg"]),]
+        agg = agg[order(-agg$summary[,"rate"]),]
         
-        agg = replace_agg_rare(agg)
+        agg = replace_agg_rare(agg, p_rare)
         
         #         return(agg)
         
@@ -261,7 +261,7 @@ train_model_intersect_prob <- function(train_set, file_name = "intersect_prob", 
     }
     
     # If no key is matched, use total CTR
-    model[["CTR"]] = mean(train_set$click)
+    model[["CTR"]] = mean(train_set$click) * 100
     
     # save to file
     saveRDS(model, file = file_name)
@@ -906,6 +906,7 @@ replace_agg_rare <- function(agg, p_rare=1) {
     
     rare_index = which(agg$summary[,"count"] <= p_rare)
     if (length(rare_index) == 0) {
+        print("---no RARE!---")
         return(agg)
     }
     
@@ -921,7 +922,7 @@ replace_agg_rare <- function(agg, p_rare=1) {
     # change name to RARE
     rare_row[1,1] = "RARE"
     # cal average and sum %
-    rare_row$summary[,"avg"] = mean(agg_rare$summary[,"avg"])
+    rare_row$summary[,"rate"]  =sum(agg_rare$summary[,"rate"])
     rare_row$summary[,"count"] =sum(agg_rare$summary[,"count"])
     
     rbind(agg_normal, rare_row )
