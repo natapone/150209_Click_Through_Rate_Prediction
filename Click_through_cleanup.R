@@ -6,9 +6,12 @@ source("Click_through.R")
 # data = read_data('train',data_source="web", limit=0)
 
 # USAGE
-# col_class_list = get_single_col_class_list("hour", "train")
+# clean_hour()
+# clean_site_traffic_level()
 
-
+clean_app_traffic_level <- function(file_name="train") {
+    
+}
 
 clean_site_traffic_level <- function(file_name="train") {
     col_class = get_single_col_class_list("site_domain", file_name)
