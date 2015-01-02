@@ -10,7 +10,24 @@ source("Click_through.R")
 # clean_site_traffic_level()
 
 clean_app_traffic_level <- function(file_name="train") {
+    col_class = get_single_col_class_list("app_domain", file_name)
+    data = read_data(file_name, limit=1000, col_class_list=col_class)
+    #return(data)
+    file_name = "rdata/app_traffic_count.RData"
+    traffic_level = cal_traffic_level(data, file_name)
     
+    data = data_by_traffic_level(data, traffic_level)
+    
+    file_name = "clean/col_app_traffic.RData"
+    cat("Write to file")
+    print(file_name)
+    
+    saveRDS(data, file = file_name,compress = F)
+    
+    cat("Total ")
+    cat(length(data))
+    print(" rows")
+    NULL
 }
 
 clean_site_traffic_level <- function(file_name="train") {
@@ -131,6 +148,23 @@ get_single_col_class_list <- function(col_name, file_name) {
         }
         # not read
         col_class_list = c(col_class_list, rep("NULL",times = 17))
+    } else if (col_name == "app_domain") {
+        col_class_list = c(rep("NULL",times = 8))
+        
+        if (file_name == 'train') {
+            col_class_list = c(
+                col_class_list, 
+                "NULL",
+                "character"
+            )
+        } else {
+            col_class_list = c(
+                col_class_list,
+                "character"
+            )
+        }
+        # not read
+        col_class_list = c(col_class_list, rep("NULL",times = 14))
     } else {
         print("Column name not found!")
     }
