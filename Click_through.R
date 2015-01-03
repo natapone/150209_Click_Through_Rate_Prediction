@@ -111,7 +111,8 @@ predict_model_intersect_prob <- function(test_set) {
                     } else {
 #                         cat("MISS ")
 #                         col_mean = m[["CTR"]]
-                        cat(col_name) = 0
+                        col_mean = 0
+#                         cat(col_name) = 0
                     }
                     
                     
@@ -121,7 +122,7 @@ predict_model_intersect_prob <- function(test_set) {
                 }
                 
                 # cal prob
-                total_prob = total_prob + col_mean
+                total_prob = total_prob * col_mean
                 
 #                 cat("---------------")
 #                 cat(col_mean)
