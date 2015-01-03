@@ -940,3 +940,25 @@ check_source <- function(data) {
     
     data_source
 }
+
+save_check_source_index <- function(data) {
+    if ( "click" %in% colnames(data)) {
+        data_part = "train"
+    } else {
+        data_part = "test"
+    }
+    
+    app_index = which(data$site_domain == "c4e18dd6")
+    
+    # save app index
+    file_name = paste(data_part, "app", "index", sep="_")
+    file_name = paste(file_name, "RData", sep=".")
+    file_name = paste("rdata", file_name, sep="/")
+
+    cat("Save index ")
+    cat(data_part)
+    print(file_name)
+    
+    saveRDS(app_index, file_name,compress=F)
+    app_index
+}
