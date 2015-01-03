@@ -8,6 +8,25 @@ source("Click_through.R")
 # USAGE
 # clean_hour()
 # clean_site_traffic_level()
+# clean_rare_category("C1", "train", "web")
+
+# Raplace RARE
+# C1,banner_pos,site_category,app_category
+# device_model,device_type,device_conn_type
+# C14,C15,C16,C17,C18,C19,C20,C21
+clean_rare_category <- function(cat_name, file_name="train", data_source="web") {
+    
+    # read single column data(train/test)
+    col_class = get_single_col_class_list("C1", file_name)
+    print(col_class)
+    data = read_data(file_name, data_source , limit=100, col_class_list=col_class)
+    return(data)
+    
+    # read model probability to get RARE level
+    
+    # re-create list only not RARE
+    
+}
 
 clean_app_traffic_level <- function(file_name="train") {
     col_class = get_single_col_class_list("app_domain", file_name)
@@ -113,9 +132,9 @@ clean_hour <- function(file_name="train") {
 }
 
 get_single_col_class_list <- function(col_name, file_name) {
-    
+
     if (col_name == "hour") {
-        
+
         if (file_name == 'train') {
             col_class_list = c(
                 "NULL",
@@ -131,9 +150,8 @@ get_single_col_class_list <- function(col_name, file_name) {
         # not read
         col_class_list = c(col_class_list, rep("NULL",times = 21))
     } else if (col_name == "site_domain") {
-        
         col_class_list = c(rep("NULL",times = 5))
-        
+
         if (file_name == 'train') {
             col_class_list = c(
                 col_class_list, 
@@ -148,9 +166,8 @@ get_single_col_class_list <- function(col_name, file_name) {
         }
         # not read
         col_class_list = c(col_class_list, rep("NULL",times = 17))
-    } else if (col_name == "app_domain") {
-        col_class_list = c(rep("NULL",times = 8))
-        
+    } else if (col_name == "C1") {
+        col_class_list = c(rep("NULL",times = 2))
         if (file_name == 'train') {
             col_class_list = c(
                 col_class_list, 
@@ -164,10 +181,26 @@ get_single_col_class_list <- function(col_name, file_name) {
             )
         }
         # not read
-        col_class_list = c(col_class_list, rep("NULL",times = 14))
+        col_class_list = c(col_class_list, rep("NULL",times = 20))
+    } else if (col_name == "banner_pos") {
+        col_class_list = c(rep("NULL",times = 3))
+        if (file_name == 'train') {
+            col_class_list = c(
+                col_class_list, 
+                "NULL",
+                "character"
+            )
+        } else {
+            col_class_list = c(
+                col_class_list,
+                "character"
+            )
+        }
+        # not read
+        col_class_list = c(col_class_list, rep("NULL",times = 19))
     } else {
         print("Column name not found!")
     }
-    
+
     col_class_list
 }
