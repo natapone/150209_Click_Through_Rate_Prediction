@@ -9,6 +9,7 @@ source("Click_through.R")
 # clean_hour()
 # clean_site_traffic_level()
 # clean_rare_category("C1", "train", "web")
+# data = clean_rare_category("banner_pos", "train", "app")
 
 # Raplace RARE
 # C1,banner_pos,site_category,app_category
@@ -17,7 +18,7 @@ source("Click_through.R")
 clean_rare_category <- function(cat_name, file_name="train", data_source="web") {
     
     # read single column data(train/test)
-    col_class = get_single_col_class_list("C1", file_name)
+    col_class = get_single_col_class_list(cat_name, file_name)
     data = read_data(file_name, data_source , limit=0, col_class_list=col_class)
 #     return(data)
     
