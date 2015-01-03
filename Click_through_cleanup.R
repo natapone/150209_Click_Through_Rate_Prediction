@@ -18,14 +18,51 @@ clean_rare_category <- function(cat_name, file_name="train", data_source="web") 
     
     # read single column data(train/test)
     col_class = get_single_col_class_list("C1", file_name)
-    print(col_class)
-    data = read_data(file_name, data_source , limit=100, col_class_list=col_class)
-    return(data)
+    data = read_data(file_name, data_source , limit=0, col_class_list=col_class)
+#     return(data)
     
     # read model probability to get RARE level
+    model_file = paste("rdata/model_intersect_prob_", data_source, ".RData", sep="")
+    model_prob = readRDS(model_file)
     
-    # re-create list only not RARE
+    col_classes = model_prob[[cat_name]]
     
+    # loop class in column
+    not_rare_index = c()
+    for (col_class in names(col_classes)) {
+        if(col_class != "RARE") {
+            cat(cat_name)
+            cat(" - ")
+            cat(col_class)
+            print("--- indexed!")
+            
+            i = which(data == col_class)
+            not_rare_index = c(not_rare_index, i)
+            not_rare_index = unique(not_rare_index)
+        }
+        
+    }
+    
+    # replace with RARE
+    print("Replace with RARE")
+    data[-not_rare_index] = "RARE"
+    data = data[[cat_name]] # convert to vector
+    
+    # col_train_web_C1.RData
+    file_name = paste("col",file_name,data_source,cat_name,sep="_")
+    file_name = paste(file_name, "RData", sep=".")
+    file_name = paste("clean", file_name, sep="/")
+    
+    cat("Write to file")
+    print(file_name)
+    
+    saveRDS(data, file = file_name,compress = F)
+    
+    cat("Total ")
+    cat(length(data))
+    print(" rows")
+    NULL
+#     return (data)
 }
 
 clean_app_traffic_level <- function(file_name="train") {
