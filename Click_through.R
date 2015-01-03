@@ -677,13 +677,21 @@ read_data <- function(file_name, data_source="all", limit=0, col_class_list=NULL
                      sep=",", stringsAsFactors=FALSE)
     } # acceptable fast, 10 min
     
+    #read app index from file
+    app_index_filename = paste("rdata/", file_name, "_app_index.RData", sep="")
+    app_index = readRDS(app_index_filename)
+    
+    # prevent reading everything if index is out of bound
+    if (limit) {
+        app_index = app_index[app_index <= limit]
+    }
+    
     if (data_source == "web" ) {
-        app_index = which(data$site_domain == "c4e18dd6") # site_domain "c4e18dd6" = marked as NULL
         data = data[-app_index,]
     } else if (data_source == "app") {
-        app_index = which(data$site_domain == "c4e18dd6")
         data = data[app_index,]
     }
+    remove(app_index)
     
     data
 }
