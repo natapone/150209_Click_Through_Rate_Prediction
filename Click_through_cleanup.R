@@ -9,7 +9,10 @@ source("Click_through.R")
 # clean_hour()
 # clean_site_traffic_level()
 # clean_rare_category("C1", "train", "web")
-# data = clean_rare_category("banner_pos", "train", "app")
+# clean_rare_category("banner_pos", "train", "app")
+# clean_rare_category("site_category", "train", "web")
+# data = clean_rare_category("app_category", "train", "app")
+
 
 # Raplace RARE
 # C1,banner_pos,site_category,app_category
@@ -62,8 +65,8 @@ clean_rare_category <- function(cat_name, file_name="train", data_source="web") 
     cat("Total ")
     cat(length(data))
     print(" rows")
-    NULL
-#     return (data)
+#     NULL
+    return (data)
 }
 
 clean_app_traffic_level <- function(file_name="train") {
@@ -236,6 +239,38 @@ get_single_col_class_list <- function(col_name, file_name) {
         }
         # not read
         col_class_list = c(col_class_list, rep("NULL",times = 19))
+    } else if (col_name == "site_category") {
+        col_class_list = c(rep("NULL",times = 6))
+        if (file_name == 'train') {
+            col_class_list = c(
+                col_class_list, 
+                "NULL",
+                "character"
+            )
+        } else {
+            col_class_list = c(
+                col_class_list,
+                "character"
+            )
+        }
+        # not read
+        col_class_list = c(col_class_list, rep("NULL",times = 16))
+    } else if (col_name == "app_category") {
+        col_class_list = c(rep("NULL",times = 9))
+        if (file_name == 'train') {
+            col_class_list = c(
+                col_class_list, 
+                "NULL",
+                "character"
+            )
+        } else {
+            col_class_list = c(
+                col_class_list,
+                "character"
+            )
+        }
+        # not read
+        col_class_list = c(col_class_list, rep("NULL",times = 13))
     } else {
         print("Column name not found!")
     }
