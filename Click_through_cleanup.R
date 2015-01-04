@@ -13,8 +13,9 @@ source("Click_through.R")
 # clean_rare_category("site_category", "train", "web")
 # clean_rare_category("app_category", "train", "app")
 # clean_rare_category("device_model", "train", "web")
-# data = clean_rare_category("device_type", "train", "web")
-
+# clean_rare_category("device_type", "train", "web")
+# clean_rare_category("device_conn_type", "train", "web")
+# data = clean_rare_category("C14", "train", "web")
 
 # Raplace RARE
 # C1,banner_pos,site_category,app_category
@@ -289,7 +290,7 @@ get_single_col_class_list <- function(col_name, file_name) {
         }
         # not read
         col_class_list = c(col_class_list, rep("NULL",times = 10))
-    } else if (col_name == "device_type") {    
+    } else if (col_name == "device_type") {
         col_class_list = c(rep("NULL",times = 13))
         if (file_name == 'train') {
             col_class_list = c(
@@ -305,6 +306,38 @@ get_single_col_class_list <- function(col_name, file_name) {
         }
         # not read
         col_class_list = c(col_class_list, rep("NULL",times = 9))
+    } else if (col_name == "device_conn_type") {
+        col_class_list = c(rep("NULL",times = 14))
+        if (file_name == 'train') {
+            col_class_list = c(
+                col_class_list, 
+                "NULL",
+                "character"
+            )
+        } else {
+            col_class_list = c(
+                col_class_list,
+                "character"
+            )
+        }
+        # not read
+        col_class_list = c(col_class_list, rep("NULL",times = 8))
+    } else if (col_name == "C14") {
+        col_class_list = c(rep("NULL",times = 15))
+        if (file_name == 'train') {
+            col_class_list = c(
+                col_class_list, 
+                "NULL",
+                "character"
+            )
+        } else {
+            col_class_list = c(
+                col_class_list,
+                "character"
+            )
+        }
+        # not read
+        col_class_list = c(col_class_list, rep("NULL",times = 7))
     } else {
         print("Column name not found!")
     }
