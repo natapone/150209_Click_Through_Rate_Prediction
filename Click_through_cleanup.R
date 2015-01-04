@@ -23,6 +23,7 @@ source("Click_through.R")
 # clean_rare_category("C19", "train", "web")
 # clean_rare_category("C20", "train", "web")
 # clean_rare_category("C21", "train", "web")
+# data = clean_click("web")
 
 # Raplace RARE
 # C1,banner_pos,site_category,app_category
@@ -31,6 +32,22 @@ source("Click_through.R")
 
 # fix previous clean: split web/app for hour, traffic_level
 
+# save click as separated file for training
+clean_click <- function(data_source="web") {
+    col_class = get_single_col_class_list("click", "train")
+    data = read_data("train", data_source , limit=0, col_class_list=col_class)
+#     return(data)
+    
+    # save file
+    file_name = paste("col","train",data_source,"click",sep="_")
+    file_name = paste(file_name, "RData", sep=".")
+    file_name = paste("clean", file_name, sep="/")
+    
+    cat("Write to file")
+    print(file_name)
+    saveRDS(data, file = file_name,compress = F)
+    return(data)
+}
 
 clean_rare_category <- function(cat_name, file_name="train", data_source="web") {
     
@@ -478,6 +495,13 @@ get_single_col_class_list <- function(col_name, file_name) {
                 "character"
             )
         }
+    } else if (col_name == "click") {
+        col_class_list = c(
+            "NULL",
+            "numeric"
+        )
+        # not read
+        col_class_list = c(col_class_list, rep("NULL",times = 22))
     } else {
         print("Column name not found!")
     }
