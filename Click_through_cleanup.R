@@ -28,6 +28,10 @@ source("Click_through.R")
 # C1,banner_pos,site_category,app_category
 # device_model,device_type,device_conn_type
 # C14,C15,C16,C17,C18,C19,C20,C21
+
+# fix previous clean: split web/app for hour, traffic_level
+
+
 clean_rare_category <- function(cat_name, file_name="train", data_source="web") {
     
     # read single column data(train/test)
@@ -88,7 +92,7 @@ clean_app_traffic_level <- function(file_name="train") {
     
     data = data_by_traffic_level(data, traffic_level)
     
-    file_name = "clean/col_app_traffic.RData"
+    file_name = "clean/col_app_traffic.RData" # change to col_train_app_traffic.RData
     cat("Write to file")
     print(file_name)
     
@@ -180,6 +184,25 @@ clean_hour <- function(file_name="train") {
     cat(length(data))
     print(" rows")
     NULL
+}
+
+split_col_hour <- function(file_name="train") {
+    # read hour data
+    # col_train_hour.RData
+    hour_file_name = paste("col", file_name, "hour", sep="_")
+    hour_file_name = paste(hour_file_name, "RData", sep=".")
+    hour_file_name = paste("clean", hour_file_name, sep="/")
+    
+    hour_data = readRDS(hour_file_name)
+    print(hour_file_name)
+    return(hour_data)
+    # read app index
+    
+    # split
+    
+    # save to file
+    
+    ### all hour in train in 5, just skip
 }
 
 get_single_col_class_list <- function(col_name, file_name) {
