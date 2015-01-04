@@ -12,7 +12,8 @@ source("Click_through.R")
 # clean_rare_category("banner_pos", "train", "app")
 # clean_rare_category("site_category", "train", "web")
 # clean_rare_category("app_category", "train", "app")
-# data = clean_rare_category("device_model", "train", "web")
+# clean_rare_category("device_model", "train", "web")
+# data = clean_rare_category("device_type", "train", "web")
 
 
 # Raplace RARE
@@ -273,7 +274,6 @@ get_single_col_class_list <- function(col_name, file_name) {
         # not read
         col_class_list = c(col_class_list, rep("NULL",times = 13))
     } else if (col_name == "device_model") {
-        # device_model
         col_class_list = c(rep("NULL",times = 12))
         if (file_name == 'train') {
             col_class_list = c(
@@ -289,6 +289,22 @@ get_single_col_class_list <- function(col_name, file_name) {
         }
         # not read
         col_class_list = c(col_class_list, rep("NULL",times = 10))
+    } else if (col_name == "device_type") {    
+        col_class_list = c(rep("NULL",times = 13))
+        if (file_name == 'train') {
+            col_class_list = c(
+                col_class_list, 
+                "NULL",
+                "character"
+            )
+        } else {
+            col_class_list = c(
+                col_class_list,
+                "character"
+            )
+        }
+        # not read
+        col_class_list = c(col_class_list, rep("NULL",times = 9))
     } else {
         print("Column name not found!")
     }
