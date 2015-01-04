@@ -18,7 +18,8 @@ source("Click_through.R")
 # clean_rare_category("C14", "train", "web")
 # clean_rare_category("C15", "train", "web")
 # clean_rare_category("C16", "train", "web")
-# data = clean_rare_category("C17", "train", "web")
+# clean_rare_category("C17", "train", "web")
+# data = clean_rare_category("C18", "train", "web")
 
 # Raplace RARE
 # C1,banner_pos,site_category,app_category
@@ -389,6 +390,22 @@ get_single_col_class_list <- function(col_name, file_name) {
         }
         # not read
         col_class_list = c(col_class_list, rep("NULL",times = 4))
+    } else if (col_name == "C18") {
+        col_class_list = c(rep("NULL",times = 19))
+        if (file_name == 'train') {
+            col_class_list = c(
+                col_class_list, 
+                "NULL",
+                "character"
+            )
+        } else {
+            col_class_list = c(
+                col_class_list,
+                "character"
+            )
+        }
+        # not read
+        col_class_list = c(col_class_list, rep("NULL",times = 3))
     } else {
         print("Column name not found!")
     }
