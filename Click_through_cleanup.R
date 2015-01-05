@@ -23,7 +23,8 @@ source("Click_through.R")
 # clean_rare_category("C19", "train", "web")
 # clean_rare_category("C20", "train", "web")
 # clean_rare_category("C21", "train", "web")
-# data = clean_click("web")
+# clean_click("web")
+# data = clean_traffic("train", "web")
 
 # Raplace RARE
 # C1,banner_pos,site_category,app_category
@@ -100,16 +101,39 @@ clean_rare_category <- function(cat_name, file_name="train", data_source="web") 
     return (data)
 }
 
-clean_app_traffic_level <- function(file_name="train") {
-    col_class = get_single_col_class_list("app_domain", file_name)
-    data = read_data(file_name, limit=1000, col_class_list=col_class)
-    #return(data)
-    file_name = "rdata/app_traffic_count.RData"
-    traffic_level = cal_traffic_level(data, file_name)
+# skip creating traffic level
+clean_traffic <- function(file_name="train", data_source="web") {
     
+    if(data_source == "web") {
+        level_file_name = "rdata/site_traffic_count.RData"
+        cat_name = "site_domain"
+    } else if (data_source == "app") {
+        level_file_name = "rdata/app_traffic_count.RData"
+        cat_name = "app_domain"
+    } else {
+        print("Choose data source web or app")
+        return()
+    }
+    
+    # read data
+    col_class = get_single_col_class_list(cat_name, file_name)
+    data = read_data(file_name, data_source , limit=0, col_class_list=col_class)
+#     return(data)
+    
+    # read levels from file
+    cat("Read level ")
+    print(level_file_name)
+    traffic_level = readRDS(level_file_name)
+#     return(traffic_level)
+    
+    # replace
     data = data_by_traffic_level(data, traffic_level)
     
-    file_name = "clean/col_app_traffic.RData" # change to col_train_app_traffic.RData
+    # save to file
+    file_name = paste("col",file_name,data_source,"traffic",sep="_")
+    file_name = paste(file_name, "RData", sep=".")
+    file_name = paste("clean", file_name, sep="/")
+    
     cat("Write to file")
     print(file_name)
     
@@ -118,7 +142,29 @@ clean_app_traffic_level <- function(file_name="train") {
     cat("Total ")
     cat(length(data))
     print(" rows")
-    NULL
+    
+    return(data)
+}
+
+clean_app_traffic_level <- function(file_name="train") {
+    col_class = get_single_col_class_list("app_domain", file_name)
+    data = read_data(file_name, limit=1000, col_class_list=col_class)
+    #return(data)
+    file_name = "rdata/app_traffic_count.RData"
+    traffic_level = cal_traffic_level(data, file_name)
+    
+#     data = data_by_traffic_level(data, traffic_level)
+#     
+#     file_name = "clean/col_app_traffic.RData" # change to col_train_app_traffic.RData
+#     cat("Write to file")
+#     print(file_name)
+#     
+#     saveRDS(data, file = file_name,compress = F)
+#     
+#     cat("Total ")
+#     cat(length(data))
+#     print(" rows")
+#     NULL
 }
 
 clean_site_traffic_level <- function(file_name="train") {
@@ -128,18 +174,18 @@ clean_site_traffic_level <- function(file_name="train") {
     file_name = "rdata/site_traffic_count.RData"
     traffic_level = cal_traffic_level(data, file_name)
     
-    data = data_by_traffic_level(data, traffic_level)
-    
-    file_name = "clean/col_site_traffic.RData"
-    cat("Write to file")
-    print(file_name)
-    
-    saveRDS(data, file = file_name,compress = F)
-    
-    cat("Total ")
-    cat(length(data))
-    print(" rows")
-    NULL
+#     data = data_by_traffic_level(data, traffic_level)
+#     
+#     file_name = "clean/col_site_traffic.RData"
+#     cat("Write to file")
+#     print(file_name)
+#     
+#     saveRDS(data, file = file_name,compress = F)
+#     
+#     cat("Total ")
+#     cat(length(data))
+#     print(" rows")
+#     NULL
 }
 
 data_by_traffic_level <- function(data, traffic_level) {
@@ -242,7 +288,6 @@ get_single_col_class_list <- function(col_name, file_name) {
         col_class_list = c(col_class_list, rep("NULL",times = 21))
     } else if (col_name == "site_domain") {
         col_class_list = c(rep("NULL",times = 5))
-
         if (file_name == 'train') {
             col_class_list = c(
                 col_class_list, 
@@ -257,6 +302,22 @@ get_single_col_class_list <- function(col_name, file_name) {
         }
         # not read
         col_class_list = c(col_class_list, rep("NULL",times = 17))
+    } else if (col_name == "app_domain") {
+        col_class_list = c(rep("NULL",times = 8))
+        if (file_name == 'train') {
+            col_class_list = c(
+                col_class_list, 
+                "NULL",
+                "character"
+            )
+        } else {
+            col_class_list = c(
+                col_class_list,
+                "character"
+            )
+        }
+        # not read
+        col_class_list = c(col_class_list, rep("NULL",times = 14))
     } else if (col_name == "C1") {
         col_class_list = c(rep("NULL",times = 2))
         if (file_name == 'train') {
