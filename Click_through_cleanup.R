@@ -45,8 +45,8 @@ clean_click <- function(data_source="web") {
     
     cat("Write to file")
     print(file_name)
-    saveRDS(data, file = file_name,compress = F)
-    return(data)
+    saveRDS(data$click, file = file_name,compress = F)
+    return(data$click)
 }
 
 clean_rare_category <- function(cat_name, file_name="train", data_source="web") {
