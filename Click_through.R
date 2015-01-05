@@ -3,6 +3,7 @@
 # train_set = read_data('train',1000)
 # train_set = read_data('train',data_source="web", limit=0)
 # test_set = read_data('test')
+# train_set = read_clean_data("web)
 
 # Count
 # validate_count_unique(train_set)
@@ -970,3 +971,55 @@ save_check_source_index <- function(data) {
     saveRDS(app_index, file_name,compress=F)
     app_index
 }
+
+read_clean_data <- function(col_list=NULL, file_name="train", data_source="web") {
+    # col_train_web_banner_pos.RData
+    
+    # test list
+    if(is.null(col_list)) {
+        col_list = c(
+            "banner_pos",
+            "traffic",
+            "click"
+        )
+    }
+    
+    data = NULL
+    for(col_name in col_list) {
+        data_path = paste("col",file_name,data_source,col_name,sep="_")
+        data_path = paste(data_path, "RData", sep=".")
+        data_path = paste("clean", data_path, sep="/")
+        
+        cat("Read ")
+        print(data_path)
+        
+        # read from file
+        d = readRDS(data_path)
+        print(length(d))
+#         return(d)
+        # merge
+        if(is.null(data)) {
+            data = d
+        } else {
+            data = cbind(data,d)
+        }
+    }
+    data = as.data.table(data)
+    setnames(data, col_list)
+    return(data)
+}
+data_model <- dummyVars(click ~ banner_pos ,
+                              data = data,
+                              sep = ".", levelsOnly = TRUE)
+data_dummy = predict(data_model, data)
+# modelFit <- train(interactionModel,data, method="glm")
+# modelFit <- train(data_model,data, method="glm")
+
+# should read traffic , click separatly because it dont need process
+c_names = colnames(data_dummy)
+# data_dummy = cbind(data_dummy, data$traffic,data$click)
+dd = cbind(data_dummy, as.numeric(data$traffic))
+colnames(dd) <- c(c_names, "traffic")
+
+data_click = as.numeric(data$click)
+modelFit <- train(x=dd,y=data_click, method="glm")
