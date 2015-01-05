@@ -200,8 +200,11 @@ data_by_traffic_level <- function(data, traffic_level) {
 #         cat(domain)
 #         print(traffic_level[[domain]])
         
-        traffic_index = data[, data == domain ]
-        traffic[traffic_index] = traffic_level[[domain]]
+        traffic_index = which(data == domain)
+        if(length(traffic_index) > 0) {
+            traffic[traffic_index] = traffic_level[[domain]]
+        }
+        
     }
     
     traffic
