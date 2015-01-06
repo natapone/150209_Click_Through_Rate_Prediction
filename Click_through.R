@@ -3,7 +3,7 @@
 # train_set = read_data('train',1000)
 # train_set = read_data('train',data_source="web", limit=0)
 # test_set = read_data('test')
-# train_set = read_clean_data("web)
+# train_set = read_clean_data(data_source="web")
 
 # Count
 # validate_count_unique(train_set)
@@ -1008,18 +1008,38 @@ read_clean_data <- function(col_list=NULL, file_name="train", data_source="web")
     setnames(data, col_list)
     return(data)
 }
-data_model <- dummyVars(click ~ banner_pos ,
-                              data = data,
-                              sep = ".", levelsOnly = TRUE)
-data_dummy = predict(data_model, data)
-# modelFit <- train(interactionModel,data, method="glm")
-# modelFit <- train(data_model,data, method="glm")
+test <- function() {
+    data = read_clean_data(data_source="web")
+    
+    inTrain = createDataPartition(y=data$click, p=0.1, list=FALSE)
+    
+    training = data[inTrain[,1],] # first column is row index
+#     testing  = data[-inTrain[,1],]
+    
+    data_model <- dummyVars(click ~ banner_pos ,
+                                  data = training,
+                                  sep = ".", levelsOnly = TRUE)
+    data_dummy = predict(data_model, training)
 
-# should read traffic , click separatly because it dont need process
-c_names = colnames(data_dummy)
-# data_dummy = cbind(data_dummy, data$traffic,data$click)
-dd = cbind(data_dummy, as.numeric(data$traffic))
-colnames(dd) <- c(c_names, "traffic")
-
-data_click = as.numeric(data$click)
-modelFit <- train(x=dd,y=data_click, method="glm")
+    
+    # should read traffic , click separatly because it dont need process
+    c_names = colnames(data_dummy)
+    data_dummy = cbind(data_dummy, as.numeric(training$traffic))
+    colnames(data_dummy) <- c(c_names, "traffic")
+    
+    data_click = as.numeric(training$click)
+    remove(data)
+    
+#     modelFit <- train(x=data_dummy,y=data_click, method="glm")
+    system.time(modelFit <- train(x=training,y=data_click, method="glm"))
+    # elapsed 12201.340
+    
+    #---
+    t = head(testing,100)
+    data_dummy = predict(data_model, t)
+    c_names = colnames(data_dummy)
+    data_dummy = cbind(data_dummy, as.numeric(t$traffic))
+    
+    modelFit = readRDS("rdata/model_clean_glm.RData")
+    predictions = predict(modelFit, newdata=t)
+}
