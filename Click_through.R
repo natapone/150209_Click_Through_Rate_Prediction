@@ -1031,15 +1031,27 @@ test <- function() {
     remove(data)
     
 #     modelFit <- train(x=data_dummy,y=data_click, method="glm")
-    system.time(modelFit <- train(x=training,y=data_click, method="glm"))
-    # elapsed 12201.340
+#     system.time(modelFit <- train(x=training,y=data_click, method="glm"))
+    system.time(modelFit <- train(x=data_dummy,y=data_click, method="glm"))
+    # web: elapsed 12201.340
     
     #---
+    data_model = readRDS("tmp/app_data_model.RData")
     t = head(testing,100)
     data_dummy = predict(data_model, t)
     c_names = colnames(data_dummy)
     data_dummy = cbind(data_dummy, as.numeric(t$traffic))
+    colnames(data_dummy) <- c(c_names, "traffic")
     
-    modelFit = readRDS("rdata/model_clean_glm.RData")
-    predictions = predict(modelFit, newdata=t)
+    modelFit = readRDS("rdata/app_model_clean_glm.RData")
+    
+    
+    # fix missing RARE
+    c_names = colnames(data_dummy)
+    data_dummy = cbind( data_dummy,rep(0,nrow(data_dummy)))
+    colnames(data_dummy) <- c(c_names, "banner_posRARE")
+    
+    predictions = predict(modelFit, newdata=data_dummy)
+
+    cbind(predictions, t$click)
 }
