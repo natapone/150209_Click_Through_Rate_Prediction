@@ -980,6 +980,9 @@ read_clean_data <- function(col_list=NULL, file_name="train", data_source="web")
         col_list = c(
             "banner_pos",
             "traffic",
+            "C1",
+            "device_type",
+            "site_category",
             "click"
         )
     }
@@ -1012,13 +1015,17 @@ test <- function() {
     data = read_clean_data(data_source="web")
     
     inTrain = createDataPartition(y=data$click, p=0.1, list=FALSE)
+    saveRDS(inTrain, "tmp/web_inTrain.RData")
     
     training = data[inTrain[,1],] # first column is row index
 #     testing  = data[-inTrain[,1],]
     
     data_model <- dummyVars(click ~ banner_pos ,
-                                  data = training,
-                                  sep = ".", levelsOnly = TRUE)
+                        data = training, sep = ".", levelsOnly = TRUE)
+    data_model <- dummyVars(click ~ banner_pos + C1+device_type+site_category ,
+                        data = training, sep = ".", levelsOnly = TRUE)
+    saveRDS(data_model, "tmp/web_data_model.RData")
+
     data_dummy = predict(data_model, training)
 
     
@@ -1054,4 +1061,17 @@ test <- function() {
     predictions = predict(modelFit, newdata=data_dummy)
 
     cbind(predictions, t$click)
+
+    #---
+    #banner_pos traffic   C1 device_type site_category click
+    t = rbind(t, 
+        data.frame(
+            "banner_pos" = 0,
+            "traffic" = 0 ,
+            "C1" = 0,
+            "device_type" = 0,
+            "site_category" = 0 ,
+            "click" =0
+        )
+    )
 }
