@@ -34,7 +34,7 @@ plot_category_relation <-function(data_source="web") {
         )
         
         data = read_clean_data(col_list, data_source="web")
-        data = head(data, 1000)
+#         data = head(data, 1000)
         
         matrix_formular = paste(main_cat, ":", ob_col, sep="")
         matrix_formular = paste("click", "~", matrix_formular)
