@@ -679,7 +679,7 @@ read_data <- function(file_name, data_source="all", limit=0, col_class_list=NULL
     } # acceptable fast, 10 min
     
     #read app index from file
-    app_index_filename = paste("rdata/", file_name, "_app_index.RData", sep="")
+    app_index_filename = paste("clean/", file_name, "_app_index.RData", sep="")
     app_index = readRDS(app_index_filename)
     
     # prevent reading everything if index is out of bound
