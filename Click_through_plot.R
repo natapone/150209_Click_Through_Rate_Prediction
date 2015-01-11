@@ -1,5 +1,6 @@
 # USAGE
 # source("Click_through_plot.R")
+# plot_category_relation()
 
 source("Click_through.R")
 
@@ -14,10 +15,10 @@ plot_category_relation <-function(data_source="web") {
     
     observe_cols = c(
         "C1",
-        "C14",
         "C15",
         "C16",
         "C17",
+        "C14",
         "C18",
         "C19",
         "C20",
@@ -33,8 +34,11 @@ plot_category_relation <-function(data_source="web") {
             "click"
         )
         
-        data = read_clean_data(col_list, data_source="web")
+        data = read_clean_data(col_list, data_source=data_source)
 #         data = head(data, 1000)
+        # data is too large
+        inTrain = createDataPartition(y=data$click, p=0.5, list=FALSE)
+        data = data[inTrain[,1],]
         
         matrix_formular = paste(main_cat, ":", ob_col, sep="")
         matrix_formular = paste("click", "~", matrix_formular)
@@ -55,14 +59,20 @@ plot_category_relation <-function(data_source="web") {
             ) + ggtitle(plot_title)
         
         file_name = paste(data_source, main_cat, ob_col, sep="_")
-        file_name = paste(file_name, "png", sep=".")
         file_name = paste("plot/cat", file_name, sep="/")
+        
+        saveRDS(agg_plot, paste(file_name, "RData", sep="."))
+        
+        file_name = paste(file_name, "png", sep=".")
         
         cat("Save plot ")
         print(file_name)
         
 #         g_height = round((nrow(agg_plot) / 20) + 0.5 )
         ggsave(file=file_name, width=10, height=6)
+        
+        # save plot data
+        
 #         return(agg_plot)
     }
     return (1)
