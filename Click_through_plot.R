@@ -1,22 +1,72 @@
 # USAGE
 # source("Click_through_plot.R")
-# plot_category_relation()
+# plot_category_relation(data_source="web")
+# plot_device_relation("web")
 
 source("Click_through.R")
 
-# Expect some dots which click > 0, that means the feature has click > no-click
-plot_category_relation <-function(data_source="web") {
-    
-    if (data_source == "web") {
-        main_cat = "site_category"
-    } else {
-        main_cat = "app_category"
-    }
+# banner_pos -> category
+# banner_pos -> 
+# banner_pos -> 
+# banner_pos -> 
+# banner_pos -> 
+plot_banner_misc <- function(data_source="web") {
+    observe_main = "banner_pos"
     
     observe_cols = c(
-        "C1",
-        "C15",
-        "C16",
+        "device_model"
+#         "traffic",
+#         "device_type",
+#         "device_conn_type",
+#         "C1",
+#         "C15",
+#         "C16",
+#         "C17",
+#         "C14",
+#         "C18",
+#         "C19",
+#         "C20",
+#         "C21"
+    )
+    
+    plot_category_relation(data_source, observe_main, observe_cols)
+    return(1)
+}
+
+plot_category_misc <- function(data_source="web") {
+    
+    observe_cols = c(
+#         "banner_pos",
+        "traffic"
+    )
+    
+    plot_category_relation(data_source, observe_main=NULL, observe_cols)
+    return(1)
+}
+
+# device_model -> device_conn_type
+# device_model -> device_type
+plot_device_relation <- function(data_source="web") {
+    observe_main = "device_conn_type"
+    
+    observe_cols = c(
+#         "device_conn_type",
+        "device_model",
+        "device_type"
+    )
+    
+    plot_category_relation(data_source, observe_main, observe_cols)
+    return(1)
+}
+
+# plot device -> category relationship
+plot_device_cat_relation <- function(data_source="web") {
+    observe_main = "device_model"
+    
+    observe_cols = c(
+#         "C1",
+#         "C15",
+#         "C16",
         "C17",
         "C14",
         "C18",
@@ -24,6 +74,41 @@ plot_category_relation <-function(data_source="web") {
         "C20",
         "C21"
     )
+    
+    plot_category_relation(data_source, observe_main, observe_cols)
+    return(1)
+}
+
+# Expect some dots which click > 0, that means the feature has click > no-click
+plot_category_relation <-function(data_source="web", observe_main=NULL, observe_cols=NULL) {
+    
+    if (data_source == "web") {
+        main_cat = "site_category"
+    } else if (data_source == "app") {
+        main_cat = "app_category"
+    } else if(is.null(data_source)) {
+        print("Please define data_source")
+        return()
+    }
+    
+    if(!is.null(observe_main)) {
+        main_cat = observe_main
+    }
+    
+    if(is.null(observe_cols)) {
+        observe_cols = c(
+            "C1",
+            "C15",
+            "C16",
+            "C17",
+            "C14",
+            "C18",
+            "C19",
+            "C20",
+            "C21"
+        )
+    }
+    
     
     for(ob_col in observe_cols) {
         print( paste(ob_col, "-", main_cat)  )
@@ -36,8 +121,9 @@ plot_category_relation <-function(data_source="web") {
         
         data = read_clean_data(col_list, data_source=data_source)
 #         data = head(data, 1000)
+#         return(data)
         # data is too large
-        inTrain = createDataPartition(y=data$click, p=0.5, list=FALSE)
+        inTrain = createDataPartition(y=data$click, p=0.1, list=FALSE)
         data = data[inTrain[,1],]
         
         matrix_formular = paste(main_cat, ":", ob_col, sep="")

@@ -60,6 +60,10 @@ require(data.table)
 library(caret)
 library(ggplot2)
 
+train_model_relation_score <- function() {
+    
+}
+
 predict_model_intersect_prob <- function(test_set) {
     # data is web or app
     app_index = which(train_set$site_domain == "c4e18dd6")
