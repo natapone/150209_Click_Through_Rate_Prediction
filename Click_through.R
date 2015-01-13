@@ -120,19 +120,19 @@ train_model_relation_score <- function(data_source="web", file_name = "relation_
     col_list = unique(col_list)
 #     col_list = c(col_list, "click")
     data = read_clean_data(col_list=col_list, file_name="train", data_source=data_source)
-    data = head(data, 1000)
+#     data = head(data, 1000)
 #     return(data)
     
     # loop cal score from each combo columns
     cal_score <- function(row) {
-        print(row)
+#         print(row)
         combo_score_max = list() # max score of each focus group
         for (combo in combo_list) {
             
             main_col = combo[1]
             ob_col = combo[2]
             
-            cat("Cal:", main_col, "-", ob_col, "\n")
+#             cat("Cal:", main_col, "-", ob_col, "\n")
             val_main_col = row[[main_col]]
 #             cat(" -", main_col, "=", val_main_col, "\n")
             
@@ -147,7 +147,7 @@ train_model_relation_score <- function(data_source="web", file_name = "relation_
             } else {
                 combo_click_score = combo_rel_score$click
             }
-            cat(" -->", combo_index, "=", combo_click_score, "\n")
+#             cat(" -->", combo_index, "=", combo_click_score, "\n")
             
             # check max
             if(is.null(combo_score_max[[main_col]])) {
@@ -158,8 +158,8 @@ train_model_relation_score <- function(data_source="web", file_name = "relation_
             
 #             return(1)
         }
-        print(combo_score_max)
-        cat("============================\n")
+#         print(combo_score_max)
+#         cat("============================\n")
         return(combo_score_max)
     }
     
@@ -176,10 +176,10 @@ train_model_relation_score <- function(data_source="web", file_name = "relation_
     # click
     data_click = read_clean_data(col_list=c("click"), file_name="train", data_source=data_source)
     data_click = data_click$click
-    data_click = head(data_click, 1000)
+#     data_click = head(data_click, 1000)
     
     # split train / test
-    inTrain = createDataPartition(y=data_click, p=0.7, list=FALSE)
+    inTrain = createDataPartition(y=data_click, p=0.6, list=FALSE)
     
     training = data[inTrain[,1],] # first column is row index
     testing  = data[-inTrain[,1],]
