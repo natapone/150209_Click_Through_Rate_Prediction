@@ -71,7 +71,15 @@ train_model_relation_score <- function(data_source="web", file_name = "relation_
         combo_list = list(
             c("banner_pos","C1"),
             c("banner_pos","C17"),
-            c("device_model","C14")
+            c("device_model","C14"),
+            c("device_model","C15"),
+            c("device_model","C16"),
+            c("device_model","C17"),
+            c("device_model","C21"),
+            c("site_category","C14"),
+            c("site_category","C15"),
+            c("site_category","C16"),
+            c("site_category","C21")
             
         )
         
@@ -83,6 +91,7 @@ train_model_relation_score <- function(data_source="web", file_name = "relation_
     
     # read relatioship score
     rel_score = NULL
+    
     for (combo in combo_list) {
         
         main_col = combo[1]
@@ -109,14 +118,15 @@ train_model_relation_score <- function(data_source="web", file_name = "relation_
     # read data
     col_list = unlist(combo_list)
     col_list = unique(col_list)
+#     col_list = c(col_list, "click")
     data = read_clean_data(col_list=col_list, file_name="train", data_source=data_source)
-    data = head(data, 100)
-    return(data)
+    data = head(data, 1000)
+#     return(data)
     
     # loop cal score from each combo columns
-    
     cal_score <- function(row) {
         print(row)
+        combo_score_max = list() # max score of each focus group
         for (combo in combo_list) {
             
             main_col = combo[1]
@@ -124,10 +134,10 @@ train_model_relation_score <- function(data_source="web", file_name = "relation_
             
             cat("Cal:", main_col, "-", ob_col, "\n")
             val_main_col = row[[main_col]]
-            cat(" -", main_col, "=", val_main_col, "\n")
+#             cat(" -", main_col, "=", val_main_col, "\n")
             
             val_ob_col = row[[ob_col]]
-            cat(" -", ob_col, "=", val_ob_col, "\n")
+#             cat(" -", ob_col, "=", val_ob_col, "\n")
             
             combo_index = paste(main_col, val_main_col, ":", ob_col, val_ob_col, sep="")
             
@@ -139,24 +149,63 @@ train_model_relation_score <- function(data_source="web", file_name = "relation_
             }
             cat(" -->", combo_index, "=", combo_click_score, "\n")
             
+            # check max
+            if(is.null(combo_score_max[[main_col]])) {
+                combo_score_max[[main_col]] = combo_click_score
+            } else if(combo_click_score > combo_score_max[[main_col]]) {
+                combo_score_max[[main_col]] = combo_click_score
+            }
+            
 #             return(1)
         }
+        print(combo_score_max)
         cat("============================\n")
-        return(1)
+        return(combo_score_max)
     }
     
-    xxx = apply(data, 1, cal_score)
+    data = apply(data, 1, cal_score)
+#     return(data)
     
-#     by(data, 1:1, function(row) {
-# #     for (d in data) {
-#         print(row)})
-#         
-#         
-#         
-#     }
+    # column name
+    combo_score_col_name = names(data[[1]])
     
+    # convert list to data.frame
+    data = data.frame(matrix(unlist(data), nrow=length(data), byrow=T)) # no col name
+    setnames(data, combo_score_col_name) # rename columns, less ram
     
+    # click
+    data_click = read_clean_data(col_list=c("click"), file_name="train", data_source=data_source)
+    data_click = data_click$click
+    data_click = head(data_click, 1000)
     
+    # split train / test
+    inTrain = createDataPartition(y=data_click, p=0.7, list=FALSE)
+    
+    training = data[inTrain[,1],] # first column is row index
+    testing  = data[-inTrain[,1],]
+    training_click = data_click[inTrain[,1]]
+    testing_click  = data_click[-inTrain[,1]]
+    
+    saveRDS(training, "tmp/training.RData")
+    saveRDS(testing, "tmp/testing.RData")
+    saveRDS(training_click, "tmp/training_click.RData")
+    saveRDS(testing_click, "tmp/testing_click.RData")
+    return(1)
+    
+    training = readRDS("tmp/training.RData")
+    testing = readRDS("tmp/testing.RData")
+    training_click = readRDS("tmp/training_click.RData")
+    testing_click = readRDS("tmp/testing_click.RData")
+
+    system.time(modelFit <- train(x=training,y=training_click, method="glm"))
+    
+    #######
+    predictions = predict(modelFit, newdata=testing)
+#     cbind(predictions, testing_click)
+
+    ####### plot cut off level
+
+#     confusionMatrix(predictions,testing$type)
     
 }
 
