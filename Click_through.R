@@ -4,6 +4,7 @@
 # train_set = read_data('train',data_source="web", limit=0)
 # test_set = read_data('test')
 # train_set = read_clean_data(data_source="web")
+# train_set = read_clean_data(column_names, data_source="web")
 
 # Count
 # validate_count_unique(train_set)
@@ -60,7 +61,102 @@ require(data.table)
 library(caret)
 library(ggplot2)
 
-train_model_relation_score <- function() {
+train_model_relation_score <- function(data_source="web", file_name = "relation_score") {
+#     data_source = check_source(test_set)
+    
+    cat("data_source =", data_source, "\n")
+#     print(data_source)
+    
+    if (data_source == "web") {
+        combo_list = list(
+            c("banner_pos","C1"),
+            c("banner_pos","C17"),
+            c("device_model","C14")
+            
+        )
+        
+        
+    } else {
+        print("sucka")
+        return(0)
+    }
+    
+    # read relatioship score
+    rel_score = NULL
+    for (combo in combo_list) {
+        
+        main_col = combo[1]
+        ob_col = combo[2]
+        
+        score_file = paste(data_source, main_col, ob_col, sep="_")
+        score_file = paste("plot/cat", score_file, sep="/")
+        score_file = paste(score_file, "RData", sep=".")
+        
+        cat("Read score file:", score_file, "\n")
+        agg = readRDS(score_file)
+        
+        if(is.null(rel_score)) {
+            rel_score = agg
+        } else {
+            rel_score = rbind(rel_score, agg)
+        }
+        #  agg[agg$names == "banner_pos1:C1RARE",]
+        
+        
+    }
+#     return(rel_score)
+    
+    # read data
+    col_list = unlist(combo_list)
+    col_list = unique(col_list)
+    data = read_clean_data(col_list=col_list, file_name="train", data_source=data_source)
+    data = head(data, 100)
+    return(data)
+    
+    # loop cal score from each combo columns
+    
+    cal_score <- function(row) {
+        print(row)
+        for (combo in combo_list) {
+            
+            main_col = combo[1]
+            ob_col = combo[2]
+            
+            cat("Cal:", main_col, "-", ob_col, "\n")
+            val_main_col = row[[main_col]]
+            cat(" -", main_col, "=", val_main_col, "\n")
+            
+            val_ob_col = row[[ob_col]]
+            cat(" -", ob_col, "=", val_ob_col, "\n")
+            
+            combo_index = paste(main_col, val_main_col, ":", ob_col, val_ob_col, sep="")
+            
+            combo_rel_score = rel_score[rel_score$names == combo_index,]
+            if(is.null(combo_rel_score)) {
+                combo_click_score = -1 # assume no click
+            } else {
+                combo_click_score = combo_rel_score$click
+            }
+            cat(" -->", combo_index, "=", combo_click_score, "\n")
+            
+#             return(1)
+        }
+        cat("============================\n")
+        return(1)
+    }
+    
+    xxx = apply(data, 1, cal_score)
+    
+#     by(data, 1:1, function(row) {
+# #     for (d in data) {
+#         print(row)})
+#         
+#         
+#         
+#     }
+    
+    
+    
     
 }
 
@@ -944,7 +1040,7 @@ replace_agg_rare <- function(agg, p_rare=1) {
 
 check_source <- function(data) {
     # data is web or app
-    app_index = which(train_set$site_domain == "c4e18dd6")
+    app_index = which(data$site_domain == "c4e18dd6")
     if (length(app_index) > 0) {
         data_source = "app"
     } else {
