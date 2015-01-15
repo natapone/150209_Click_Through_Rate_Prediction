@@ -201,14 +201,16 @@ train_model_relation_score <- function(data_source="web", file_name = "relation_
     saveRDS(modelFit, "tmp/modelFit.RData")
     #######
     predictions = predict(modelFit, newdata=testing)
-    
+    saveRDS(predictions, "tmp/predictions.RData")
+
 #     cbind(predictions, testing_click)
 
     ####### plot cut off level
     library("pROC")
     op = roc(testing_click,predictions, algorithm = 2,plot=T)
+    saveRDS(op, "tmp/op.RData")
     # 0.5422
-    which(predictions >= 0.5422)
+    which(predictions >= 0.6449)
     
     
 #     confusionMatrix(predictions,testing$type)
