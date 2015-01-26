@@ -85,8 +85,16 @@ train_model_relation_score <- function(data_source="web", file_name = "relation_
         
         
     } else {
-        print("sucka")
-        return(0)
+        combo_list = list(
+            c("app_category","C15"),
+            c("app_category","C17"),
+            c("app_category","C19"),
+            c("app_category","C20"),
+            c("app_category","C21"),
+            c("banner_pos","C1"),
+            c("device_type","C20"),
+            c("device_model","C17")
+        )
     }
     
     # read relatioship score
@@ -210,8 +218,8 @@ train_model_relation_score <- function(data_source="web", file_name = "relation_
     op = roc(testing_click,predictions, algorithm = 2,plot=T)
     saveRDS(op, "tmp/op.RData")
     # 0.5422
-    which(predictions >= 0.6449)
-    
+    which(predictions >= 0.6449) # web
+#     which(predictions >= 0.705) # app
     
 #     confusionMatrix(predictions,testing$type)
     
