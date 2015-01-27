@@ -27,6 +27,9 @@
 # k = caret_train(train_set)
 # m = train_model_intersect_prob(train_set)
 
+# Train Model relation score
+# prep_model_relation_score(data_source="web", train_test_ratio=0.1)
+
 # Proof
 # proof_split_site_app_domain()
 
@@ -61,7 +64,9 @@ require(data.table)
 library(caret)
 library(ggplot2)
 
-train_model_relation_score <- function(data_source="web", file_name = "relation_score") {
+# train_model_relation_score
+
+prep_model_relation_score <- function(data_source="web", file_name = "relation_score", train_test_ratio=0.6) {
 #     data_source = check_source(test_set)
     
     cat("data_source =", data_source, "\n")
@@ -187,13 +192,20 @@ train_model_relation_score <- function(data_source="web", file_name = "relation_
 #     data_click = head(data_click, 1000)
     
     # split train / test
-    inTrain = createDataPartition(y=data_click, p=0.6, list=FALSE)
+    inTrain = createDataPartition(y=data_click, p=train_test_ratio, list=FALSE)
     
     training = data[inTrain[,1],] # first column is row index
     testing  = data[-inTrain[,1],]
     training_click = data_click[inTrain[,1]]
     testing_click  = data_click[-inTrain[,1]]
     
+    
+    saveRDS(training, paste("model", file_name, data_source, "training.RData", sep="/"))
+    saveRDS(testing, paste("model", file_name, data_source, "testing.RData", sep="/"))
+    saveRDS(training_click, paste("model", file_name, data_source, "training_click.RData", sep="/"))
+    saveRDS(testing_click, paste("model", file_name, data_source, "testing_click.RData", sep="/"))
+    return(1)
+
     saveRDS(training, "tmp/training.RData")
     saveRDS(testing, "tmp/testing.RData")
     saveRDS(training_click, "tmp/training_click.RData")
