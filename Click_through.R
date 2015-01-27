@@ -29,6 +29,7 @@
 
 # Train Model relation score
 # prep_model_relation_score(data_source="web", train_test_ratio=0.1)
+# m = train_model_relation_score(data_source="web", train_percent=1)
 
 # Proof
 # proof_split_site_app_domain()
@@ -64,7 +65,45 @@ require(data.table)
 library(caret)
 library(ggplot2)
 
-# train_model_relation_score
+train_model_relation_score <- function(data_source="web", file_name = "relation_score", train_percent=1) {
+    
+    # read data
+    training = readRDS(paste("model", file_name, data_source, "training.RData", sep="/"))
+    testing = readRDS(paste("model", file_name, data_source, "testing.RData", sep="/"))
+    training_click = readRDS(paste("model", file_name, data_source, "training_click.RData", sep="/"))
+    testing_click = readRDS(paste("model", file_name, data_source, "testing_click.RData", sep="/"))
+    
+    if (train_percent < 1) {
+        inTrain = createDataPartition(y=training_click, p=train_percent, list=FALSE)
+        training = training[inTrain[,1],]
+        training_click = training_click[inTrain[,1]]
+    }
+    print("Finish reading files")
+    
+    # train
+    system.time(
+        modelFit <- train(x=training,y=training_click, method="glm")
+    )
+    file_path = paste("model", file_name, data_source, "modelFit.RData", sep="/")
+    saveRDS(modelFit, file_path)
+    cat( "Save model to", file_path, "\n"  )
+    
+    # test prediction
+    predictions = predict(modelFit, newdata=testing)
+    file_path = paste("model", file_name, data_source, "predictions.RData", sep="/")
+    saveRDS(predictions, file_path)
+    cat( "Save test prediction to", file_path, "\n"  )
+    
+    # plot cut off level
+    library("pROC")
+    op = roc(testing_click, predictions, algorithm = 2,plot=T)
+    file_path = paste("model", file_name, data_source, "roc.RData", sep="/")
+    saveRDS(op, file_path)
+    cat( "Save ROC to", file_path, "\n"  )
+    
+    #
+    return(1)
+}
 
 prep_model_relation_score <- function(data_source="web", file_name = "relation_score", train_test_ratio=0.6) {
 #     data_source = check_source(test_set)
