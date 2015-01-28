@@ -31,6 +31,9 @@
 # prep_model_relation_score(data_source="web", train_test_ratio=0.1)
 # m = train_model_relation_score(data_source="web", train_percent=1)
 
+# Predict Model relation score ***
+# data = prep_model_relation_score(data_source="web", mode="test")
+
 # Proof
 # proof_split_site_app_domain()
 
@@ -105,7 +108,7 @@ train_model_relation_score <- function(data_source="web", file_name = "relation_
     return(1)
 }
 
-prep_model_relation_score <- function(data_source="web", file_name = "relation_score", train_test_ratio=0.6) {
+prep_model_relation_score <- function(data_source="web", file_name = "relation_score", train_test_ratio=0.6, mode="train") {
 #     data_source = check_source(test_set)
     
     cat("data_source =", data_source, "\n")
@@ -171,7 +174,7 @@ prep_model_relation_score <- function(data_source="web", file_name = "relation_s
     col_list = unlist(combo_list)
     col_list = unique(col_list)
 #     col_list = c(col_list, "click")
-    data = read_clean_data(col_list=col_list, file_name="train", data_source=data_source)
+    data = read_clean_data(col_list=col_list, file_name=mode, data_source=data_source)
 #     data = head(data, 1000)
 #     return(data)
     
@@ -224,6 +227,14 @@ prep_model_relation_score <- function(data_source="web", file_name = "relation_s
     # convert list to data.frame
     data = data.frame(matrix(unlist(data), nrow=length(data), byrow=T)) # no col name
     setnames(data, combo_score_col_name) # rename columns, less ram
+    
+    # return data for prediction
+    if (mode == "test") {
+        file_path = paste("model", file_name, "test",data_source, "data.RData", sep="/")
+        saveRDS(data, file_path)
+        cat("Save test data to", file_path, "\n")
+        return(data)
+    }
     
     # click
     data_click = read_clean_data(col_list=c("click"), file_name="train", data_source=data_source)
