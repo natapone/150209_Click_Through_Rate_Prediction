@@ -894,6 +894,10 @@ read_data <- function(file_name, data_source="all", limit=0, col_class_list=NULL
                      sep=",", stringsAsFactors=FALSE)
     } # acceptable fast, 10 min
     
+    if (data_source == "all") {
+        return(data)
+    }
+    
     #read app index from file
     app_index_filename = paste("clean/", file_name, "_app_index.RData", sep="")
     app_index = readRDS(app_index_filename)
@@ -1178,7 +1182,7 @@ save_check_source_index <- function(data) {
     # save app index
     file_name = paste(data_part, "app", "index", sep="_")
     file_name = paste(file_name, "RData", sep=".")
-    file_name = paste("rdata", file_name, sep="/")
+    file_name = paste("clean", file_name, sep="/")
 
     cat("Save index ")
     cat(data_part)
