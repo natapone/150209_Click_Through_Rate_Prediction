@@ -26,12 +26,49 @@ source("Click_through.R")
 # clean_click("web")
 # data = clean_traffic("train", "web")
 
+# Create Test set
+# split_test_id()
+
 # Raplace RARE
 # C1,banner_pos,site_category,app_category
 # device_model,device_type,device_conn_type
 # C14,C15,C16,C17,C18,C19,C20,C21
 
 # fix previous clean: split web/app for hour, traffic_level
+
+split_test_id <- function() {
+    
+    file_name = "test"
+    col_class = get_single_col_class_list("id", file_name)
+    
+    # id web
+    data_source = "web"
+    data = read_data(file_name, data_source , limit=0, col_class_list=col_class)
+    
+    # save file
+    file_path = paste("col",file_name,data_source,"id",sep="_")
+    file_path = paste(file_path, "RData", sep=".")
+    file_path = paste("clean", file_path, sep="/")
+    
+    cat("Write to file")
+    print(file_path)
+    saveRDS(data$id, file = file_path,compress = F)
+    
+    # id app
+    data_source = "app"
+    data = read_data(file_name, data_source , limit=0, col_class_list=col_class)
+    
+    # save file
+    file_path = paste("col",file_name,data_source,"id",sep="_")
+    file_path = paste(file_path, "RData", sep=".")
+    file_path = paste("clean", file_path, sep="/")
+    
+    cat("Write to file")
+    print(file_path)
+    saveRDS(data$id, file = file_path,compress = F)
+    
+    1
+}
 
 # save click as separated file for training
 clean_click <- function(data_source="web") {
@@ -564,6 +601,20 @@ get_single_col_class_list <- function(col_name, file_name) {
             "NULL",
             "numeric"
         )
+        # not read
+        col_class_list = c(col_class_list, rep("NULL",times = 22))
+    } else if (col_name == "id") {
+        
+        if (file_name == 'train') {
+            col_class_list = c(
+                "character",
+                "NULL"
+            )
+        } else {
+            col_class_list = c(
+                "character"
+            )
+        }
         # not read
         col_class_list = c(col_class_list, rep("NULL",times = 22))
     } else {
