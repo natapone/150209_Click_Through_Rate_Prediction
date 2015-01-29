@@ -33,6 +33,7 @@
 
 # Predict Model relation score ***
 # data = prep_model_relation_score(data_source="web", mode="test")
+# 
 
 # Proof
 # proof_split_site_app_domain()
@@ -67,6 +68,25 @@
 require(data.table)
 library(caret)
 library(ggplot2)
+
+predict_model_relation_score <-function() {
+    
+    # read data
+    
+    # read model
+    
+    # predict
+    
+    # read ROC threshold
+    th_web = readRDS("model/relation_score/web/threshold.RData")
+    
+    
+    
+    # cut off
+    
+    
+    # 
+}
 
 train_model_relation_score <- function(data_source="web", file_name = "relation_score", train_percent=1) {
     
@@ -103,6 +123,12 @@ train_model_relation_score <- function(data_source="web", file_name = "relation_
     file_path = paste("model", file_name, data_source, "roc.RData", sep="/")
     saveRDS(op, file_path)
     cat( "Save ROC to", file_path, "\n"  )
+    
+    # cal ROC threshold
+    th = coords(op, "best", ret=c("threshold", "specificity", "sensitivity"))
+    file_path = paste("model", file_name, data_source, "threshold.RData", sep="/")
+    saveRDS(th, file_path)
+    cat( "Save threshold to", file_path, "\n"  )
     
     #
     return(1)
