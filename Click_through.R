@@ -71,21 +71,61 @@ library(ggplot2)
 
 predict_model_relation_score <-function() {
     
-    # read data
+    # read test data
+    test_web = readRDS("model/relation_score/test/web/data.RData")
+    test_app = readRDS("model/relation_score/test/app/data.RData")
     
     # read model
+    model_web = readRDS("model/relation_score/web/modelFit.RData")
+    model_app = readRDS("model/relation_score/app/modelFit.RData")
     
     # predict
+    predictions_web = predict(model_web, newdata=test_web)
+    predictions_app = predict(model_app, newdata=test_app)
+    
+    # free mem
+    remove(test_web)
+    remove(test_app)
+    remove(model_web)
+    remove(model_app)
     
     # read ROC threshold
     th_web = readRDS("model/relation_score/web/threshold.RData")
-    
-    
+    th_app = readRDS("model/relation_score/app/threshold.RData")
     
     # cut off
+    result_app = predictions_app
+    result_web = predictions_web
+#     idx_app = which(predictions_app > th_app[['threshold']])
+#     result_app = rep(0, nrow(test_app))
+#     result_app[idx_app] = 1
+#     
+#     idx_web = which(predictions_web > th_web[['threshold']])
+#     result_web = rep(0, nrow(test_web))
+#     result_web[idx_web] = 1
     
+    # merge with id
+    id_app = read_clean_data(col_list=c("id"), file_name="test", data_source="app")
+    result_app = cbind(id_app$id, result_app)
     
-    # 
+    id_web = read_clean_data(col_list=c("id"), file_name="test", data_source="web")
+    result_web = cbind(id_web$id, result_web)
+    
+    result = rbind(result_app, result_web)
+    result = as.data.table(result)
+    setnames(result, c("id", "click"))
+    
+    # sort
+    result <- result[order(id),] 
+    
+    file_path = "model/relation_score/test/prediction_result.csv"
+    write.table(
+        result, file = file_path, 
+        quote = FALSE, sep = ",",
+        row.names = FALSE, col.names = TRUE
+    )
+    cat("Save prediction result to", file_path, "\n")
+    
 }
 
 train_model_relation_score <- function(data_source="web", file_name = "relation_score", train_percent=1) {
