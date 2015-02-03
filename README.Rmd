@@ -44,26 +44,39 @@ This model counts population of each column. If it less than 1%
 
 ### replace rare categories with "RARE"
 ```{r save_app_index, echo=T, eval=FALSE}
-source("Click_through_cleanup.R")
-save_check_source_index(train_app_set)
-
-data_sources = c("web", "app")
-data_type    = "train"
-replace_list = c("C1","banner_pos","site_category","app_category", 
-                 "device_model","device_type","device_conn_type",
-                 "C14","C15","C16","C17","C18","C19","C20","C21")
-
-for (data_source in data_sources) {
-    for (col in replace_list) {
-        cat("Clean", data_type, "set:", data_source, "-", col, "\n")
-        clean_rare_category(col, data_type, data_source)
-    }
-}
+# source("Click_through_cleanup.R")
+# save_check_source_index(train_app_set)
+# 
+# data_sources = c("web", "app")
+# data_type    = "train"
+# replace_list = c("C1","banner_pos","site_category","app_category", 
+#                  "device_model","device_type","device_conn_type",
+#                  "C14","C15","C16","C17","C18","C19","C20","C21")
+# 
+# for (data_source in data_sources) {
+#     for (col in replace_list) {
+#         cat("Clean", data_type, "set:", data_source, "-", col, "\n")
+#         clean_rare_category(col, data_type, data_source)
+#     }
+# }
 ```
 
 ## Plot and define predictors
-plot_category_relation()
-* use clean data already
+We define predictors from clicl index that > 0, that means the feature has click > no-click
+
+
+### Plot relationship between categories and save score
+```{r plot_cat, echo=T}
+source("Click_through_plot.R")
+plot_category_relation(data_source="web")
+# plot_category_relation(data_source="app")
+```
+
+### Plot relationship between banners and save score
+```{r plot_banner, echo=T}
+# plot_banner_misc(data_source="web")
+# plot_banner_misc(data_source="app")
+```
 
 ## Create model from predictors
 
