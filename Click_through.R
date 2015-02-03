@@ -482,7 +482,7 @@ train_model_intersect_prob <- function(train_set, file_name = "intersect_prob", 
             "C19",
             "C20",
             "C21"
-        )
+        ) # no SITE data in APP
     } else {
         col_list = c(
             "C1",
@@ -507,17 +507,14 @@ train_model_intersect_prob <- function(train_set, file_name = "intersect_prob", 
             "C20",
             "C21"
         )
-    }
+    } # no APP data in SITE
     
     all_row = nrow(train_set)
-    
-    cat("Rare if frequency <")
-    cat(p_rare)
-    print(" %")
+    cat("RARE if population <", p_rare, "% \n")
     
     model = list()
     for (col_name in col_list) {
-        print ( paste("Cal click -", col_name) )
+        cat ( paste("Cal click -", col_name), "\n")
         
         agg = aggregate(train_set$click, list(train_set[[col_name]]),   
                         FUN=function(x) c(
@@ -614,22 +611,22 @@ create_dummy_var <- function(data) {
 # Mark NULL: site_domain = c4e18dd6, app_domain = 7801e8d9
 proof_split_site_app_domain <- function(train_set) {
     site_index = which(train_set$site_domain == "c4e18dd6") # 15121739 entries
-    cat("Site domain c4e18dd6 count = ")
-    print (length(site_index))
+    cat("site_domain c4e18dd6 count = ")
+    cat (length(site_index), "\n")
     
     not_site  = train_set[-site_index,]
-    cat("NOT site count = ")
-    print (nrow(not_site))
+    cat("NOT site_domain = ")
+    cat (nrow(not_site), "\n")
     
     proof_index = which(not_site$app_domain == "7801e8d9")
-    cat("App domain 7801e8d9 count =")
-    print (length(proof_index))
+    cat("app_domain 7801e8d9 count = ")
+    cat (length(proof_index), "\n")
     
     if(length(proof_index) == nrow(not_site)) {
-        print("== Number not site match number of app ==")
-        print("## proof data is splited between APP and SITE ##")
+        cat("== Number not site match number of app ==\n")
+        cat("## proof data is splited between APP and SITE ## \n")
     } else {
-        print("== no good! ==")
+        cat("== no good! ==\n")
     }
 }
 
@@ -1213,12 +1210,11 @@ replace_agg_rare <- function(agg, p_rare=1) {
     
     rare_index = which(agg$summary[,"count"] <= p_rare)
     if (length(rare_index) == 0) {
-        print("---no RARE!---")
+        cat("   - no RARE! \n")
         return(agg)
     }
     
-    cat("---rare_index----")
-    print(length(rare_index))
+    cat("   - RARE count:", length(rare_index), "\n")
     
     agg_rare  = agg[rare_index,]
     agg_normal = agg[-rare_index,]
@@ -1260,13 +1256,9 @@ save_check_source_index <- function(data) {
     file_name = paste(data_part, "app", "index", sep="_")
     file_name = paste(file_name, "RData", sep=".")
     file_name = paste("clean", file_name, sep="/")
-
-    cat("Save index ")
-    cat(data_part)
-    print(file_name)
     
-    saveRDS(app_index, file_name,compress=F)
-    app_index
+    cat("Save app index for", data_part, ":", file_name, "\n")
+    saveRDS(app_index, file_name, compress=F)
 }
 
 read_clean_data <- function(col_list=NULL, file_name="train", data_source="web") {

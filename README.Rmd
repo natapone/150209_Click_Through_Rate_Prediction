@@ -1,0 +1,82 @@
+---
+title: "Avazu Click Through Rate Prediction"
+author: "NPC"
+output:
+  html_document:
+    keep_md: yes
+    toc: yes
+---
+
+## Cleanup data
+```{r cleanup_data, include=F}
+source("Click_through.R")
+# train_set = read_data('train',limit=1000)
+```
+### Proof that data comes from two independent sources website and application
+Data is much easier to process if we split it in to two smaller group.  
+
+> **Hypothesis:** We assume that ads from website and application have their own behaviour.  
+We can create two models based on different datasources independently.  
+
+```{r proof_split, echo=T}
+# proof_split_site_app_domain(train_set)
+# remove(train_set)
+```
+
+### determine RARE level
+To reduce complexity of data, We should separate low occurrence and call them "RARE".
+We can still observe "RARE" data if it affects CTR model.
+This model counts population of each column. If it less than 1%
+
+> **Hypothesis:** We count population of each column. We assume it is rare if the count is less than 1%.
+
+```{r read_app_web_data, include=F}
+# train_web_set = read_data('train',data_source="web", limit=1000)
+# train_app_set = read_data('train',data_source="app", limit=1000)
+```
+
+```{r cal_rare_level, echo=T}
+# m_web = train_model_intersect_prob(train_web_set)
+# m_app = train_model_intersect_prob(train_app_set)
+# remove(train_web_set)
+# remove(train_app_set)
+```
+
+### replace rare categories with "RARE"
+```{r save_app_index, echo=T, eval=FALSE}
+source("Click_through_cleanup.R")
+save_check_source_index(train_app_set)
+
+data_sources = c("web", "app")
+data_type    = "train"
+replace_list = c("C1","banner_pos","site_category","app_category", 
+                 "device_model","device_type","device_conn_type",
+                 "C14","C15","C16","C17","C18","C19","C20","C21")
+
+for (data_source in data_sources) {
+    for (col in replace_list) {
+        cat("Clean", data_type, "set:", data_source, "-", col, "\n")
+        clean_rare_category(col, data_type, data_source)
+    }
+}
+```
+
+## Plot and define predictors
+plot_category_relation()
+* use clean data already
+
+## Create model from predictors
+
+
+## Convert raw data into model structure
+
+
+## Train model
+
+
+## Evaluate model
+
+
+## Predict Test set
+
+

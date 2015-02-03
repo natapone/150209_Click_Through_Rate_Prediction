@@ -107,7 +107,7 @@ clean_rare_category <- function(cat_name, file_name="train", data_source="web") 
             cat(cat_name)
             cat(" - ")
             cat(col_class)
-            print("--- indexed!")
+            cat(" --- not RARE! \n")
             
             i = which(data == col_class)
             not_rare_index = c(not_rare_index, i)
