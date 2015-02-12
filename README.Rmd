@@ -10,7 +10,7 @@ output:
 ## Cleanup data
 ```{r cleanup_data, include=T, eval=FALSE}
 source("Click_through.R")
-# train_set = read_data('train',limit=1000)
+train_set = read_data('train',limit=1000)
 ```
 ### Proof that data comes from two independent sources website and application
 Data is much easier to process if we split it in to two smaller group.  
@@ -19,8 +19,8 @@ Data is much easier to process if we split it in to two smaller group.
 We can create two models based on different datasources independently.  
 
 ```{r proof_split, echo=T, eval=FALSE}
-# proof_split_site_app_domain(train_set)
-# remove(train_set)
+proof_split_site_app_domain(train_set)
+remove(train_set)
 ```
 
 ### determine RARE level
@@ -31,34 +31,34 @@ This model counts population of each column. If it less than 1%
 > **Hypothesis:** We count population of each column. We assume it is rare if the count is less than 1%.
 
 ```{r read_app_web_data, include=T, eval=FALSE}
-# train_web_set = read_data('train',data_source="web", limit=1000)
-# train_app_set = read_data('train',data_source="app", limit=1000)
+train_web_set = read_data('train',data_source="web", limit=1000)
+train_app_set = read_data('train',data_source="app", limit=1000)
 ```
 
 ```{r cal_rare_level, echo=T, eval=FALSE}
-# m_web = train_model_intersect_prob(train_web_set)
-# m_app = train_model_intersect_prob(train_app_set)
-# remove(train_web_set)
-# remove(train_app_set)
+m_web = train_model_intersect_prob(train_web_set)
+m_app = train_model_intersect_prob(train_app_set)
+remove(train_web_set)
+remove(train_app_set)
 ```
 
 ### replace rare categories with "RARE"
 ```{r save_app_index, echo=T, eval=FALSE}
-# source("Click_through_cleanup.R")
-# save_check_source_index(train_app_set)
-# 
-# data_sources = c("web", "app")
-# data_type    = "train"
-# replace_list = c("C1","banner_pos","site_category","app_category", 
-#                  "device_model","device_type","device_conn_type",
-#                  "C14","C15","C16","C17","C18","C19","C20","C21")
-# 
-# for (data_source in data_sources) {
-#     for (col in replace_list) {
-#         cat("Clean", data_type, "set:", data_source, "-", col, "\n")
-#         clean_rare_category(col, data_type, data_source)
-#     }
-# }
+source("Click_through_cleanup.R")
+save_check_source_index(train_app_set)
+
+data_sources = c("web", "app")
+data_type    = "train"
+replace_list = c("C1","banner_pos","site_category","app_category", 
+                 "device_model","device_type","device_conn_type",
+                 "C14","C15","C16","C17","C18","C19","C20","C21")
+
+for (data_source in data_sources) {
+    for (col in replace_list) {
+        cat("Clean", data_type, "set:", data_source, "-", col, "\n")
+        clean_rare_category(col, data_type, data_source)
+    }
+}
 ```
 
 ## Plot and define predictors
@@ -66,19 +66,19 @@ We define predictors from clicl index that > 0, that means the feature has click
 
 
 ### Plot relationship between categories and save score
-```{r plot_cat, echo=T}
+```{r plot_cat, fig.width=12, fig.height=8, echo=T}
 source("Click_through_plot.R")
 plot_category_relation(data_source="web")
-# plot_category_relation(data_source="app")
+plot_category_relation(data_source="app")
 ```
 
 ### Plot relationship between banners and save score
 
 improvement increase sampling for relationship data. 
 If use 100% of training set, memory overflow.
-```{r plot_banner, echo=T}
-# plot_banner_misc(data_source="web")
-# plot_banner_misc(data_source="app")
+```{r plot_banner, fig.width=12, fig.height=8, echo=T}
+plot_banner_misc(data_source="web")
+plot_banner_misc(data_source="app")
 ```
 
 ## Create model from predictors

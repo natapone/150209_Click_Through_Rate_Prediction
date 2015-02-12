@@ -50,7 +50,7 @@ plot_device_relation <- function(data_source="web") {
     observe_main = "device_conn_type"
     
     observe_cols = c(
-#         "device_conn_type",
+        "device_conn_type",
         "device_model",
         "device_type"
     )
@@ -64,9 +64,9 @@ plot_device_cat_relation <- function(data_source="web") {
     observe_main = "device_model"
     
     observe_cols = c(
-#         "C1",
-#         "C15",
-#         "C16",
+        "C1",
+        "C15",
+        "C16",
         "C17",
         "C14",
         "C18",
@@ -80,7 +80,7 @@ plot_device_cat_relation <- function(data_source="web") {
 }
 
 # Expect some dots which click > 0, that means the feature has click > no-click
-plot_category_relation <-function(data_source="web", observe_main=NULL, observe_cols=NULL) {
+plot_category_relation <-function(data_source="web", observe_main=NULL, observe_cols=NULL, mode="doc") {
     
     if (data_source == "web") {
         main_cat = "site_category"
@@ -135,8 +135,8 @@ plot_category_relation <-function(data_source="web", observe_main=NULL, observe_
         
         #plot
         plot_title = paste(data_source,main_cat,ob_col,sep=" - ")
-        
-        ggplot(data=agg_plot, aes(x=click, y=names, colour=population, size=population)) + 
+#         return(agg_plot)
+        p = ggplot(data=agg_plot, aes(x=click, y=names, colour=population, size=population)) + 
             geom_point( alpha=0.7) +
             scale_colour_gradientn( colours=rainbow(7)) +
             geom_vline(yintercept=0, colour="darkgreen", linetype = "longdash") +
@@ -144,20 +144,25 @@ plot_category_relation <-function(data_source="web", observe_main=NULL, observe_
                 panel.background=element_rect(fill="grey97")
             ) + ggtitle(plot_title)
         
-        file_name = paste(data_source, main_cat, ob_col, sep="_")
-        file_name = paste("plot/cat", file_name, sep="/")
+        if (mode == 'doc') {
+            print(p)
+        } else {
+            # save plot data
+            file_name = paste(data_source, main_cat, ob_col, sep="_")
+            file_name = paste("plot/cat", file_name, sep="/")
+            
+            saveRDS(agg_plot, paste(file_name, "RData", sep="."))
+            
+            file_name = paste(file_name, "png", sep=".")
+            
+            cat("Save plot ")
+            print(file_name)
+            
+            # g_height = round((nrow(agg_plot) / 20) + 0.5 )
+            ggsave(file=file_name, width=10, height=6)
+        }
         
-        saveRDS(agg_plot, paste(file_name, "RData", sep="."))
         
-        file_name = paste(file_name, "png", sep=".")
-        
-        cat("Save plot ")
-        print(file_name)
-        
-#         g_height = round((nrow(agg_plot) / 20) + 0.5 )
-        ggsave(file=file_name, width=10, height=6)
-        
-        # save plot data
         
 #         return(agg_plot)
     }
